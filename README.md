@@ -1,2 +1,2 @@
-# p465-project-group9
+# P465 Project - Group #9
 Booking Management System
