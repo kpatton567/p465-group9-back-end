@@ -1,6 +1,8 @@
 package com.group9.prevue.model;
 
 import javax.persistence.*;
+import java.util.Set;
+import java.util.HashSet;
 
 
 @Entity
@@ -14,11 +16,17 @@ public class User {
 	private String email;
 	private String password;
 	
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name = "user_roles",
+				joinColumns = @JoinColumn(name = "user_id"),
+				inverseJoinColumns = @JoinColumn(name = "role_id"))
+	private Set<Role> roles = new HashSet<>();
+	
 	public User() {}
 	
-	public User(String password, String email) {
-		this.password = password;
+	public User(String email, String password) {
 		this.email = email;
+		this.password = password;
 	}
 
 	public String getPassword() {
@@ -43,5 +51,13 @@ public class User {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public Set<Role> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(Set<Role> roles) {
+		this.roles = roles;
 	}
 }
