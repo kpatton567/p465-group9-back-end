@@ -1,5 +1,16 @@
 .App {
   text-align: center;
+  /* background: #282c34; */
+  background-image: url('./assets/ways-save-movie-theater-tickets-2136x1427.jpeg');
+  background-size: cover;
+}
+
+.App-img {
+  opacity: 0.5;
+}
+
+body > #root > div {
+  height: 100vh;
 }
 
 .App-logo {
