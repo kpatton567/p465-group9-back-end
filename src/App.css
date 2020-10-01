@@ -1,5 +1,17 @@
 .App {
   text-align: center;
+  /* background: #282c34; */
+  background-image: url('./assets/Gs4K0t.jpg');
+  background-size: cover;
+  
+}
+
+.App-img {
+  opacity: 0.5;
+}
+
+body > #root > div {
+  height: 100vh;
 }
 
 .App-logo {
