@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -96,10 +97,9 @@ public class AuthController {
 	}
 	
 	@PostMapping("/logout")
-	ResponseEntity<?> logout(@RequestBody HttpServletRequest request){
-		String headerAuth = request.getHeader("Authorization");
-		if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
-			JwtBlacklist jwtBlacklist = new JwtBlacklist(headerAuth.substring(7));
+	ResponseEntity<?> logout(@RequestHeader(name = "Authorization") String token){
+		if (token != null && token.startsWith("Bearer ")) {
+			JwtBlacklist jwtBlacklist = new JwtBlacklist(token.substring(7));
 			jwtBlacklistRepository.save(jwtBlacklist);
 			return ResponseEntity.ok(new MessageResponse("User logged out successfully"));
 		}
