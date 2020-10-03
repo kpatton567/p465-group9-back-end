@@ -28,12 +28,12 @@ function LoginForm(props) {
         //     .then(response => {
         //         console.log(response);
         //     })
-        axios.post(API_BASE_URL+'/user/login', payload)
+        axios.post('http://localhost:8080/api/auth/login/', payload)
             .then(function (response) {
                 if(response.status === 200){
                     setState(prevState => ({
                         ...prevState,
-                        'successMessage' : 'Login successful. Redirecting to home page..'
+                        'successMessage' : 'Login successful. Redirecting to home page..'   
                     }))
                     localStorage.setItem(ACCESS_TOKEN_NAME,response.data.token);
                     redirectToHome();

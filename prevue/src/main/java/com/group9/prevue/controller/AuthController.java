@@ -54,6 +54,11 @@ public class AuthController {
 		// log in to an account with corresponding email if password is correct
 		Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 		
+//		if(auth == null)
+//		{
+//			to do handle failure
+//		}
+//		
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		String jwt = jwtUtils.generateJwtToken(auth);
 		

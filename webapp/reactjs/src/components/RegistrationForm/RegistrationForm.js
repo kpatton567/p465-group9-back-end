@@ -25,7 +25,9 @@ function RegistrationForm(props) {
                 "email":state.email,
                 "password":state.password,
             }
-            axios.post(API_BASE_URL+'/user/register', payload)
+            //axios.post(API_BASE_URL+'/user/register', payload)
+            
+            axios.post('http://localhost:8080/api/auth/register/', payload)
                 .then(function (response) {
                     if(response.status === 200){
                         setState(prevState => ({
@@ -34,13 +36,18 @@ function RegistrationForm(props) {
                         }))
                         localStorage.setItem(ACCESS_TOKEN_NAME,response.data.token);
                         redirectToHome();
-                        props.showError(null)
-                    } else{
+                        props.showError(null);
+                        // console.log(response.message);
+                    }
+                    else {
+                        // console.log(response.message);
                         props.showError("Some error ocurred");
                     }
                 })
                 .catch(function (error) {
+                    
                     console.log(error);
+                    
                 });    
         } else {
             props.showError('Please enter valid username and password')    
