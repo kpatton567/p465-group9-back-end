@@ -2,6 +2,9 @@ package com.group9.prevue.controller;
 
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
+
 import java.util.HashSet;
 import java.util.List;
 
@@ -12,8 +15,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,8 +29,10 @@ import com.group9.prevue.model.JwtResponse;
 import com.group9.prevue.model.MessageResponse;
 import com.group9.prevue.model.User;
 import com.group9.prevue.model.Role;
+import com.group9.prevue.model.JwtBlacklist;
 import com.group9.prevue.repository.UserRepository;
 import com.group9.prevue.repository.RoleRepository;
+import com.group9.prevue.repository.JwtBlacklistRepository;
 import com.group9.prevue.security.JwtUtils;
 import com.group9.prevue.security.UserDetailsImpl;
 
@@ -39,6 +46,9 @@ public class AuthController {
 	
 	@Autowired
 	private RoleRepository roleRepository;
+	
+	@Autowired
+	private JwtBlacklistRepository jwtBlacklistRepository;
 	
 	@Autowired 
 	AuthenticationManager authManager;
@@ -89,5 +99,17 @@ public class AuthController {
 		userRepository.save(user);
 		
 		return ResponseEntity.ok(new MessageResponse("User registered successfully"));
+	}
+	
+	@PostMapping("/logout")
+	ResponseEntity<?> logout(@RequestHeader(name = "Authorization") String token){
+		if (token != null && token.startsWith("Bearer ")) {
+			JwtBlacklist jwtBlacklist = new JwtBlacklist(token.substring(7));
+			jwtBlacklistRepository.save(jwtBlacklist);
+			return ResponseEntity.ok(new MessageResponse("User logged out successfully"));
+		}
+		
+		return ResponseEntity.badRequest().body(new MessageResponse("No token in request"));
+		
 	}
 }
