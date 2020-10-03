@@ -8,4 +8,12 @@
     <fullyQualifiedTypeName name="com.group9.prevue.repository.UserRepository"/>
     <fullyQualifiedTypeName name="org.springframework.beans.factory.annotation.Autowired"/>
     <fullyQualifiedTypeName name="javax.persistence.Table"/>
+    <fullyQualifiedTypeName name="com.group9.prevue.model.Role"/>
+    <fullyQualifiedTypeName name="com.group9.prevue.model.LoginRequest"/>
+    <fullyQualifiedTypeName name="com.fasterxml.jackson.annotation.JsonIgnore"/>
+    <fullyQualifiedTypeName name="com.group9.prevue.model.ERole"/>
+    <fullyQualifiedTypeName name="java.util.stream.Collectors"/>
+    <fullyQualifiedTypeName name="com.group9.prevue.security.AuthEntryPointJwt"/>
+    <fullyQualifiedTypeName name="com.group9.prevue.security.UserDetailsServiceImpl"/>
+    <fullyQualifiedTypeName name="com.group9.prevue.model.MessageResponse"/>
 </qualifiedTypeNameHistroy>

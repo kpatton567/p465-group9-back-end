@@ -4,8 +4,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import com.group9.prevue.security.UserDetailsImpl;
-
 import java.util.Date;
 import io.jsonwebtoken.*;
 
