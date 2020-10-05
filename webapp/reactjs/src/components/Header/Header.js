@@ -6,7 +6,7 @@ import axios from 'axios';
 
 function Header(props) {
     const [state , setState] = useState({
-        isLoggedIn : localStorage.getItem(ACCESS_TOKEN_NAME) ? true : false
+
     })
     const handleLogoutClick = (e) => {
         e.preventDefault();
@@ -18,14 +18,11 @@ function Header(props) {
         }
         }).then(function (response) {
                 if(response.status === 200){
-                    // setState(prevState => ({
-                    //     ...prevState,
-                    //     // 'successMessage' : 'Logged out' 
-                    //     value  : true
-
-                    // }))
-
-                    // state.value = true
+                    setState(prevState => ({
+                        ...prevState,
+                        'successMessage' : 'Logged out' ,
+                    }))
+                    localStorage.clear();
                     redirectToLogin();
                     props.showError(null)
                 }
@@ -53,7 +50,7 @@ function Header(props) {
                     type="logout" 
                     className="btn btn-light mt-4 justify-content-between"
                     onClick={handleLogoutClick}
-                    // disabled={!state.isLoggedIn}
+                    style={{display: localStorage.getItem(ACCESS_TOKEN_NAME) ? 'block' : 'none' }}
                 >Logout</button>
             </div>
         </nav>

@@ -46,14 +46,17 @@ function LoginForm(props) {
                 }
             })
             .catch(function (error) {
-                if(error.response.data.message === "Email already registered")
-                {
-                    props.showError("Email already registered");
-                }
-                if(error.response.data.message === "Incorrect Password")
-                {
-                    props.showError("Incorrect password entered. Please re check.");
-                }
+                // if(error.response.data.message === "Email already registered")
+                // {
+                //     props.showError("Email already registered");
+                // }
+                // if(error.response.data.message === "Incorrect Password")
+                // {
+                //     props.showError("Incorrect password entered. Please re check.");
+                // }
+                if(error.response.status === 401){
+                    props.showError("Please check your password or email id");
+                } 
                 console.log(error);
             });
         }
