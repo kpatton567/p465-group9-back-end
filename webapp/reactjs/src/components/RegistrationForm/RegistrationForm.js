@@ -19,7 +19,6 @@ function RegistrationForm(props) {
         }))
     }
     const sendDetailsToServer = () => {
-        if(state.email)
         if(state.email.length && state.password.length) {
             props.showError(null);
             const payload={
@@ -56,7 +55,15 @@ function RegistrationForm(props) {
     }
     const handleSubmitClick = (e) => {
         e.preventDefault();
-        if(state.password === state.confirmPassword) {
+        // let p_re = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/;
+        let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        if ( !re.test(state.email) ) { 
+            props.showError("Please enter a valid email id");
+        }
+        // else if(!p_re.test(state.password)){
+        //     props.showError("Password should contain atleast eight characters, a special character, a number, an upper case letter!");
+        // }
+        else if(state.password === state.confirmPassword) {
             sendDetailsToServer()    
         } else {
             props.showError('Passwords do not match');
