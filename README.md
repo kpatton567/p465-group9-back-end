@@ -1,3 +1,6 @@
+## Project References
+JWT Authentication code adapted from: https://bezkoder.com/spring-boot-jwt-authentication/
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
