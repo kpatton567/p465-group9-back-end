@@ -1,10 +1,9 @@
 import React, {useState} from 'react';
 import axios from 'axios';
-import './LoginForm.css';
 import {API_BASE_URL, ACCESS_TOKEN_NAME} from '../../constants/apiConstants';
 import { withRouter } from "react-router-dom";
 
-function LoginForm(props) {
+function OTPForm(props) {
     const [state , setState] = useState({
         email : "",
         password : "",
@@ -20,19 +19,10 @@ function LoginForm(props) {
 
     const handleSubmitClick = (e) => {
         e.preventDefault();
-        let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        if ( !re.test(state.email) ) { 
-            props.showError("Please enter a valid email id");
+        const payload={
+            "email":state.email,
+            "password":state.password,
         }
-        else if(state.password.length == 0){
-            props.showError("Please enter a password"); 
-        } 
-        else{
-            
-            const payload={
-                "email":state.email,
-                "password":state.password,
-            }
         axios.post('http://localhost:8080/api/auth/login/', payload)
             .then(function (response) {
                 if(response.status === 200){
@@ -44,20 +34,16 @@ function LoginForm(props) {
                     redirectToHome();
                     props.showError(null)
                 }
+                else if(response.code === 204){
+                    props.showError("Username and password do not match");
+                }
+                else{
+                    props.showError("Username does not exists");
+                }
             })
             .catch(function (error) {
-                if(error.response.data.message === "Email already registered")
-                {
-                    props.showError("Email already registered");
-                }
-                if(error.response.data.message === "Incorrect Password")
-                {
-                    props.showError("Incorrect password entered. Please re check.");
-                }
                 console.log(error);
             });
-        }
-        
     }
 
     const redirectToHome = () => {
@@ -74,7 +60,7 @@ function LoginForm(props) {
             <form>
                 <div className="form-group text-left">
                 <label htmlFor="exampleInputEmail1">Email address</label>
-                <input type="email"
+                <input type="email" 
                        className="form-control" 
                        id="email" 
                        aria-describedby="emailHelp" 
@@ -82,6 +68,7 @@ function LoginForm(props) {
                        value={state.email}
                        onChange={handleChange}
                 />
+                {/* <small id="emailHelp" className="form-text text-muted">We'll never share your email with anyone else.</small> */}
                 </div>
                 <div className="form-group text-left">
                 <label htmlFor="exampleInputPassword1">Password</label>
@@ -112,4 +99,4 @@ function LoginForm(props) {
     )
 }
 
-export default withRouter(LoginForm);
+export default withRouter(OTPForm);

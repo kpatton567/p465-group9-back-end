@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import './App.css';
 import Header from './components/Header/Header';
 import LoginForm from './components/LoginForm/LoginForm';
+import OTPForm from './components/OTPForm/OTPForm';
 import RegistrationForm from './components/RegistrationForm/RegistrationForm';
 import Home from './components/Home/Home';
 import PrivateRoute from './utils/PrivateRoute';
@@ -18,15 +19,18 @@ function App() {
   return (
     <Router >
     <div className="App">
-      <Header title={title}/>
+      <Header title={title} showError={updateErrorMessage} updateTitle={updateTitle}/>
         <div className="container d-flex align-items-center flex-column">
           <Switch>
             <Route path="/" exact={true}>
               <LoginForm showError={updateErrorMessage} updateTitle={updateTitle}/>
-            </Route>
+            </Route>  
             <Route path="/register">
               <RegistrationForm showError={updateErrorMessage} updateTitle={updateTitle}/>
             </Route>
+            {/* <Route path="/otp">
+              <OTPForm showError={updateErrorMessage} updateTitle={updateTitle}/>
+            </Route> */}
             <Route path="/login">
               <LoginForm showError={updateErrorMessage} updateTitle={updateTitle}/>
             </Route>

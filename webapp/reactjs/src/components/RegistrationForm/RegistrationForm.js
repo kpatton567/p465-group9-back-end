@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import axios from 'axios';
 import './RegistrationForm.css';
-import {API_BASE_URL, ACCESS_TOKEN_NAME} from '../../constants/apiConstants';
+import {ACCESS_TOKEN_NAME} from '../../constants/apiConstants';
 import { withRouter } from "react-router-dom";
 
 function RegistrationForm(props) {
@@ -19,44 +19,36 @@ function RegistrationForm(props) {
         }))
     }
     const sendDetailsToServer = () => {
+        if(state.email)
         if(state.email.length && state.password.length) {
             props.showError(null);
             const payload={
                 "email":state.email,
                 "password":state.password,
-            }
-            //axios.post(API_BASE_URL+'/user/register', payload)
-            
+            }           
             axios.post('http://localhost:8080/api/auth/register/', payload)
                 .then(function (response) {
                     if(response.status === 200){
                         setState(prevState => ({
                             ...prevState,
-                            'successMessage' : 'Registration successful. Redirecting to home page..'
+                            'successMessage' : 'Registration successful. Please login with these credentials'
                         }))
-                        localStorage.setItem(ACCESS_TOKEN_NAME,response.data.token);
-                        redirectToHome();
+                        alert("Registration successful. Please login with these credentials");
+                        redirectToLogin();
                         props.showError(null);
-                        // console.log(response.message);
-                    }
-                    else {
-                        // console.log(response.message);
-                        props.showError("Some error ocurred");
                     }
                 })
                 .catch(function (error) {
-                    
                     console.log(error);
-                    
+                    if(error.response.data.message === "Email is already in use")
+                    {
+                        props.showError("Email is already in use");
+                    }
                 });    
         } else {
             props.showError('Please enter valid username and password')    
         }
         
-    }
-    const redirectToHome = () => {
-        props.updateTitle('Home')
-        props.history.push('/home');
     }
     const redirectToLogin = () => {
         props.updateTitle('Login')
