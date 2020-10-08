@@ -12,10 +12,10 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 public class SendEmail {
-    private SendEmail() {
+    public SendEmail() {
     }
     
-	public static void Send(final String username, final String password, String recipientEmail, String ccEmail, String title, String message) throws AddressException, MessagingException {
+	public void Send(final String username, final String password, String recipientEmail, String ccEmail, String title, String message) throws AddressException, MessagingException {
 		
 		Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
         final String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
@@ -52,16 +52,5 @@ public class SendEmail {
         t.sendMessage(mime, mime.getAllRecipients());      
         t.close();
     }
-    public static void main(String[] args) throws AddressException, MessagingException
-    {
-    	final String from = "prevuebooking";
-    	final String pass = "P465565group9";
-    	User user = new User();
-    	String recipient = user.getEmail();
-    	String cc = "";
-    	String title = "One Time Password";
-    	OneTimePassword otp = new OneTimePassword();
-    	String OTP = otp.pass(6);
-    	Send(from,pass,recipient,cc,title,OTP);
-    }
+
 }

@@ -3,6 +3,8 @@ package com.group9.prevue.controller;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
 import javax.servlet.http.HttpServletRequest;
 
 import java.util.HashSet;
@@ -24,11 +26,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.group9.prevue.model.ERole;
+import com.group9.prevue.model.Email;
 import com.group9.prevue.model.LoginRequest;
 import com.group9.prevue.model.JwtResponse;
 import com.group9.prevue.model.MessageResponse;
+import com.group9.prevue.model.OneTimePassword;
 import com.group9.prevue.model.User;
 import com.group9.prevue.model.Role;
+import com.group9.prevue.model.SendEmail;
 import com.group9.prevue.model.JwtBlacklist;
 import com.group9.prevue.repository.UserRepository;
 import com.group9.prevue.repository.RoleRepository;
@@ -79,7 +84,21 @@ public class AuthController {
 		
 		return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), roles));
 	}
-	
+	@PostMapping("/otp")
+	ResponseEntity<?> otp(@RequestBody Email user) throws AddressException, MessagingException {
+		SendEmail email = new SendEmail();
+		final String from = "prevuebooking";
+    	final String password = "P465565group9";
+    	String to = user.getEmail();
+    	String cc = "";
+    	String title = "One Time Password";
+    	OneTimePassword otp = new OneTimePassword();
+    	String OTP = otp.pass(6);
+		email.Send(from, password, to, cc, title, OTP);
+		return ResponseEntity.ok(new MessageResponse("OTP sent successfully"));
+		
+		
+	}
 	@PostMapping("/register")
 	ResponseEntity<?> register(@RequestBody LoginRequest request) {
 		// register a new account in the database
