@@ -1,7 +1,6 @@
-package com.group9.prevue.security;
+package com.group9.prevue.utility;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -21,12 +20,10 @@ public class JwtUtils {
 	@Autowired
 	private JwtBlacklistRepository jwtBlacklistRepository;
 	
-	public String generateJwtToken(Authentication auth) {
-		
-		UserDetailsImpl userPrincipal = (UserDetailsImpl) auth.getPrincipal();
+	public String generateJwtToken(String email) {
 		
 		return Jwts.builder()
-				.setSubject(userPrincipal.getUsername())
+				.setSubject(email)
 				.setIssuedAt(new Date())
 				.setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
 				.signWith(SignatureAlgorithm.HS512, jwtSecret)

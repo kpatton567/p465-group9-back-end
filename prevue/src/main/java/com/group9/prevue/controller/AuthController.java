@@ -1,29 +1,21 @@
 package com.group9.prevue.controller;
 
 import java.util.Set;
-import java.util.stream.Collectors;
-
+import java.util.HashSet;
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.HashSet;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.group9.prevue.model.ERole;
 import com.group9.prevue.model.Email;
@@ -31,15 +23,14 @@ import com.group9.prevue.model.LoginRequest;
 import com.group9.prevue.model.JwtResponse;
 import com.group9.prevue.model.MessageResponse;
 import com.group9.prevue.model.OneTimePassword;
+import com.group9.prevue.model.SendEmail;
 import com.group9.prevue.model.User;
 import com.group9.prevue.model.Role;
-import com.group9.prevue.model.SendEmail;
 import com.group9.prevue.model.JwtBlacklist;
 import com.group9.prevue.repository.UserRepository;
+import com.group9.prevue.utility.JwtUtils;
 import com.group9.prevue.repository.RoleRepository;
 import com.group9.prevue.repository.JwtBlacklistRepository;
-import com.group9.prevue.security.JwtUtils;
-import com.group9.prevue.security.UserDetailsImpl;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -55,11 +46,10 @@ public class AuthController {
 	@Autowired
 	private JwtBlacklistRepository jwtBlacklistRepository;
 	
-	@Autowired 
-	AuthenticationManager authManager;
-	
-	@Autowired
-	PasswordEncoder encoder;
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 	
 	@Autowired
 	JwtUtils jwtUtils;
@@ -67,23 +57,19 @@ public class AuthController {
 	@PostMapping("/login")
 	ResponseEntity<?> login(@RequestBody LoginRequest request) {
 		// log in to an account with corresponding email if password is correct
-		Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 		
-//		if(auth == null)
-//		{
-//			to do handle failure
-//		}
-//		
-		SecurityContextHolder.getContext().setAuthentication(auth);
-		String jwt = jwtUtils.generateJwtToken(auth);
+		if (! userRepository.existsByEmail(request.getEmail()))
+			return ResponseEntity.badRequest().body(new MessageResponse("Email not found"));
 		
-		UserDetailsImpl userDetails = (UserDetailsImpl) auth.getPrincipal();
-		List<String> roles = userDetails.getAuthorities().stream()
-				.map(item -> item.getAuthority())
-				.collect(Collectors.toList());
+		User user = userRepository.findByEmail(request.getEmail()).get();
+		if (user.getPassword() != passwordEncoder().encode(request.getPassword()))
+			return ResponseEntity.badRequest().body(new MessageResponse("Incorrect password"));
 		
-		return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), roles));
+		String jwt = jwtUtils.generateJwtToken(request.getEmail());
+		
+		return ResponseEntity.ok(new JwtResponse(jwt, user.getId(), user.getEmail(), user.getRoles()));
 	}
+	
 	@PostMapping("/otp")
 	ResponseEntity<?> otp(@RequestBody Email user) throws AddressException, MessagingException {
 		SendEmail email = new SendEmail();
@@ -99,6 +85,7 @@ public class AuthController {
 		
 		
 	}
+	
 	@PostMapping("/register")
 	ResponseEntity<?> register(@RequestBody LoginRequest request) {
 		// register a new account in the database
@@ -106,7 +93,7 @@ public class AuthController {
 			return ResponseEntity.badRequest().body(new MessageResponse("Email is already in use"));
 		}
 		
-		User user = new User(request.getEmail(), encoder.encode(request.getPassword()));
+		User user = new User(request.getEmail(), passwordEncoder().encode(request.getPassword()));
 		
 		Set<Role> roles = new HashSet<>();
 		

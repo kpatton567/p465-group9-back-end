@@ -1,6 +1,6 @@
 package com.group9.prevue.model;
 
-import java.util.List;
+import java.util.Set;
 
 public class JwtResponse {
 
@@ -8,9 +8,9 @@ public class JwtResponse {
 	private String type = "Bearer";
 	private Long id;
 	private String email;
-	private List<String> roles;
+	private Set<Role> roles;
 	
-	public JwtResponse(String token, Long id, String email, List<String> roles) {
+	public JwtResponse(String token, Long id, String email, Set<Role> roles) {
 		this.token = token;
 		this.id = id;
 		this.email = email;
@@ -49,11 +49,11 @@ public class JwtResponse {
 		this.email = email;
 	}
 
-	public List<String> getRoles() {
+	public Set<Role> getRoles() {
 		return roles;
 	}
 
-	public void setRoles(List<String> roles) {
+	public void setRoles(Set<Role> roles) {
 		this.roles = roles;
 	}
 }
