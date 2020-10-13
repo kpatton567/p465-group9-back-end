@@ -1,4 +1,4 @@
-package com.group9.prevue.model;
+package com.group9.prevue.model.response;
 
 public class MessageResponse {
 

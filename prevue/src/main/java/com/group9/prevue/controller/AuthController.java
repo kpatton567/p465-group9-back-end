@@ -19,12 +19,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.group9.prevue.model.ERole;
 import com.group9.prevue.model.Email;
-import com.group9.prevue.model.LoginRequest;
-import com.group9.prevue.model.JwtResponse;
-import com.group9.prevue.model.MessageResponse;
 import com.group9.prevue.model.OneTimePassword;
 import com.group9.prevue.model.SendEmail;
 import com.group9.prevue.model.User;
+import com.group9.prevue.model.request.LoginRequest;
+import com.group9.prevue.model.response.JwtResponse;
+import com.group9.prevue.model.response.MessageResponse;
 import com.group9.prevue.model.Role;
 import com.group9.prevue.model.JwtBlacklist;
 import com.group9.prevue.repository.UserRepository;

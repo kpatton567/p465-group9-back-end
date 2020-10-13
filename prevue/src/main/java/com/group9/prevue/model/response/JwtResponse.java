@@ -1,6 +1,8 @@
-package com.group9.prevue.model;
+package com.group9.prevue.model.response;
 
 import java.util.Set;
+
+import com.group9.prevue.model.Role;
 
 public class JwtResponse {
 
