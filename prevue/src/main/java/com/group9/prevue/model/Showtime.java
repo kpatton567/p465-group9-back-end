@@ -11,7 +11,9 @@ public class Showtime {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
+	//@ForeignKey
 	private Long theaterId;
+	//@ForeignKey
 	private Long movieId;
 	
 	private Date showtime;

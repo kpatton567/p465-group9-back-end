@@ -1,5 +1,7 @@
 package com.group9.prevue.model;
 
+import java.util.Set;
+import java.util.HashSet;
 import javax.persistence.*;
 
 @Entity
@@ -12,6 +14,12 @@ public class Movie {
 	
 	private String title;
 	private String description;
+	
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name = "movie_genres",
+				joinColumns = @JoinColumn(name = "movie_id"),
+				inverseJoinColumns = @JoinColumn(name = "genre_id"))
+	private Set<Genre> genres = new HashSet<>();
 	
 	public Movie() { }
 	
@@ -42,5 +50,13 @@ public class Movie {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public Set<Genre> getGenres() {
+		return genres;
+	}
+
+	public void setGenres(Set<Genre> genres) {
+		this.genres = genres;
 	}
 }
