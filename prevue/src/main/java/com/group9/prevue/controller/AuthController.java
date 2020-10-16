@@ -28,7 +28,7 @@ import com.group9.prevue.model.response.MessageResponse;
 import com.group9.prevue.model.Role;
 import com.group9.prevue.model.JwtBlacklist;
 import com.group9.prevue.repository.UserRepository;
-import com.group9.prevue.utility.JwtUtils;
+import com.group9.prevue.security.JwtUtils;
 import com.group9.prevue.repository.RoleRepository;
 import com.group9.prevue.repository.JwtBlacklistRepository;
 
@@ -37,7 +37,7 @@ import com.group9.prevue.repository.JwtBlacklistRepository;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-	@Autowired
+	/*@Autowired
 	private UserRepository userRepository;
 	
 	@Autowired
@@ -117,5 +117,5 @@ public class AuthController {
 		
 		return ResponseEntity.badRequest().body(new MessageResponse("No token in request"));
 		
-	}
+	}*/
 }

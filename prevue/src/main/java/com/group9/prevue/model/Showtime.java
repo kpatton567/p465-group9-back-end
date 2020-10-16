@@ -2,6 +2,7 @@ package com.group9.prevue.model;
 
 import javax.persistence.*;
 import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "showtimes")
@@ -11,18 +12,19 @@ public class Showtime {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	//@ForeignKey
-	private Long theaterId;
-	//@ForeignKey
-	private Long movieId;
+	@ManyToOne
+	private Theater theater;
+	@ManyToOne
+	private Movie movie;
 	
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private Date showtime;
 	
 	public Showtime() { }
 	
-	public Showtime(Long theaterId, Long movieId, Date showtime) {
-		this.theaterId = theaterId;
-		this.movieId = movieId;
+	public Showtime(Theater theater, Movie movie, Date showtime) {
+		this.theater = theater;
+		this.movie = movie;
 		this.showtime = showtime;
 	}
 
@@ -34,20 +36,21 @@ public class Showtime {
 		this.id = id;
 	}
 
-	public Long getTheaterId() {
-		return theaterId;
+	public Theater getTheater() {
+		return theater;
 	}
 
-	public void setTheaterId(Long theaterId) {
-		this.theaterId = theaterId;
+	public void setTheater(Theater theater) {
+		this.theater = theater;
+	}
+		
+
+	public Movie getMovie() {
+		return movie;
 	}
 
-	public Long getMovieId() {
-		return movieId;
-	}
-
-	public void setMovieId(Long movieId) {
-		this.movieId = movieId;
+	public void setMovieId(Movie movie) {
+		this.movie = movie;
 	}
 
 	public Date getShowtime() {

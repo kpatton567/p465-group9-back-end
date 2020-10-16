@@ -1,4 +1,4 @@
-package com.group9.prevue.utility;
+package com.group9.prevue.security;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -20,7 +20,7 @@ public class JwtUtils {
 	@Autowired
 	private JwtBlacklistRepository jwtBlacklistRepository;
 	
-	public String generateJwtToken(String email) {
+	/*public String generateJwtToken(String email) {
 		
 		return Jwts.builder()
 				.setSubject(email)
@@ -30,9 +30,9 @@ public class JwtUtils {
 				.compact();
 	}
 	
-	public String getEmailFromToken(String token) {
+	/*public String getEmailFromToken(String token) {
 		return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
-	}
+	}*/
 	
 	public boolean validateToken(String token) {
 		try {

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.group9.prevue.model.Theater;
 import com.group9.prevue.model.Movie;
 import com.group9.prevue.model.EGenre;
 import com.group9.prevue.model.Genre;
@@ -21,6 +22,7 @@ import com.group9.prevue.model.request.AddShowtimeRequest;
 import com.group9.prevue.model.response.MessageResponse;
 import com.group9.prevue.repository.GenreRepository;
 import com.group9.prevue.repository.MovieRepository;
+import com.group9.prevue.repository.TheaterRepository;
 import com.group9.prevue.repository.ShowtimeRepository;
 
 
@@ -36,16 +38,21 @@ public class ManagerController {
 	private MovieRepository movieRepository;
 	
 	@Autowired
+	private TheaterRepository theaterRepository;
+	
+	@Autowired
 	private GenreRepository genreRepository;
 	
 	@PostMapping
 	public ResponseEntity<?> addShowtime(@RequestBody AddShowtimeRequest request){
-		Showtime showtime = new Showtime(request.getTheaterId(), request.getMovieId(), request.getShowtime());
+		Movie movie = movieRepository.findById(request.getMovieId()).orElseThrow(() -> new RuntimeException("Error: Movie not found"));
+		Theater theater = theaterRepository.findById(request.getTheaterId()).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
+		Showtime showtime = new Showtime(theater, movie, request.getShowtime());
 		showtimeRepository.save(showtime);
 		return ResponseEntity.ok(new MessageResponse("Showtime added successfully"));
 	}
 	
-	@PostMapping
+	@PostMapping("/add_movie")
 	public ResponseEntity<?> addMovie(@RequestBody AddMovieRequest request){
 		Movie movie = new Movie(request.getTitle(), request.getDescription());
 		
