@@ -2,11 +2,12 @@ package com.group9.prevue.model;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "showtimes")
-public class Showtime {
+public class Showtimes {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,15 +18,14 @@ public class Showtime {
 	@ManyToOne
 	private Movie movie;
 	
-	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-	private Date showtime;
+	@ElementCollection
+	private List<Date> showtimes;
 	
-	public Showtime() { }
+	public Showtimes() { }
 	
-	public Showtime(Theater theater, Movie movie, Date showtime) {
+	public Showtimes(Theater theater, Movie movie) {
 		this.theater = theater;
 		this.movie = movie;
-		this.showtime = showtime;
 	}
 
 	public Long getId() {
@@ -53,12 +53,12 @@ public class Showtime {
 		this.movie = movie;
 	}
 
-	public Date getShowtime() {
-		return showtime;
+	public List<Date> getShowtimes() {
+		return showtimes;
 	}
 
-	public void setShowtime(Date showtime) {
-		this.showtime = showtime;
+	public void setShowtimes(List<Date> showtimes) {
+		this.showtimes = showtimes;
 	}
 	
 	

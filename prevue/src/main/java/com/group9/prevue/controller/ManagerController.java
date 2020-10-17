@@ -1,6 +1,8 @@
 package com.group9.prevue.controller;
 
+import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -17,7 +19,7 @@ import com.group9.prevue.model.Movie;
 import com.group9.prevue.model.EGenre;
 import com.group9.prevue.model.Genre;
 import com.group9.prevue.model.request.AddMovieRequest;
-import com.group9.prevue.model.Showtime;
+import com.group9.prevue.model.Showtimes;
 import com.group9.prevue.model.request.AddShowtimeRequest;
 import com.group9.prevue.model.response.MessageResponse;
 import com.group9.prevue.repository.GenreRepository;
@@ -43,13 +45,25 @@ public class ManagerController {
 	@Autowired
 	private GenreRepository genreRepository;
 	
-	@PostMapping
+	@PostMapping("/add_showtime")
 	public ResponseEntity<?> addShowtime(@RequestBody AddShowtimeRequest request){
 		Movie movie = movieRepository.findById(request.getMovieId()).orElseThrow(() -> new RuntimeException("Error: Movie not found"));
 		Theater theater = theaterRepository.findById(request.getTheaterId()).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
-		Showtime showtime = new Showtime(theater, movie, request.getShowtime());
-		showtimeRepository.save(showtime);
-		return ResponseEntity.ok(new MessageResponse("Showtime added successfully"));
+		if (showtimeRepository.existsByTheaterAndMovie(theater, movie)) {
+			Showtimes showtimes = showtimeRepository.findByTheaterAndMovie(theater, movie);
+			List<Date> dates = showtimes.getShowtimes();
+			dates.add(request.getShowtime());
+			showtimes.setShowtimes(dates);
+			showtimeRepository.save(showtimes);
+			return ResponseEntity.ok(new MessageResponse("Showtime added successfully"));
+		} else {
+			Showtimes showtimes = new Showtimes(theater, movie);
+			List<Date> dates = new ArrayList<Date>();
+			dates.add(request.getShowtime());
+			showtimes.setShowtimes(dates);
+			showtimeRepository.save(showtimes);
+			return ResponseEntity.ok(new MessageResponse("Showtime added successfully"));
+		}
 	}
 	
 	@PostMapping("/add_movie")

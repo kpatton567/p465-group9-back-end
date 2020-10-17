@@ -1,11 +1,13 @@
 package com.group9.prevue.model.request;
 
 import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class AddShowtimeRequest {
 
 	private Long theaterId;
 	private Long movieId;
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private Date showtime;
 
 	public Long getTheaterId() {

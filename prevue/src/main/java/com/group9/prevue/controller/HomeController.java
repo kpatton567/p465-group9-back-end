@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.group9.prevue.model.Movie;
 import com.group9.prevue.model.Theater;
-import com.group9.prevue.model.Showtime;
+import com.group9.prevue.model.Showtimes;
 import com.group9.prevue.repository.MovieRepository;
 import com.group9.prevue.repository.TheaterRepository;
 import com.group9.prevue.repository.ShowtimeRepository;
@@ -34,13 +34,22 @@ public class HomeController {
 	private TheaterRepository theaterRepository;
 	
 	@PostMapping("/theater_showtimes")
-	public List<Showtime> getShowtimesAtTheater(@RequestParam Long theaterId) {
-		return showtimeRepository.findByTheaterId(theaterId);
+	public Showtimes getShowtimesAtTheater(@RequestParam Long theaterId) {
+		Theater theater = theaterRepository.findById(theaterId).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
+		return showtimeRepository.findByTheater(theater);
 	}
 	
 	@PostMapping("/movie_showtimes")
-	public List<Showtime> getShowtimesForMovieAtTheater(@RequestParam Long theaterId, @RequestParam Long movieId){
-		return showtimeRepository.findByTheaterAndMovie(theaterId, movieId);
+	public Showtimes getMovieShowtimes(@RequestParam Long movieId) {
+		Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new RuntimeException("Error: Movie not found"));
+		return showtimeRepository.findByMovie(movie);
+	}
+	
+	@PostMapping("/movie_theater_showtimes")
+	public Showtimes getShowtimesForMovieAtTheater(@RequestParam Long theaterId, @RequestParam Long movieId){
+		Theater theater = theaterRepository.findById(theaterId).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
+		Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new RuntimeException("Error: Movie not found"));
+		return showtimeRepository.findByTheaterAndMovie(theater, movie);
 	}
 	
 	@GetMapping("/theaters")
