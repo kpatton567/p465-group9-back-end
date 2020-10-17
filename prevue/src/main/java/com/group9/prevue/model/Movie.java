@@ -61,4 +61,12 @@ public class Movie {
 	public void setGenres(Set<Genre> genres) {
 		this.genres = genres;
 	}
+
+	public String getPosterLink() {
+		return posterLink;
+	}
+
+	public void setPosterLink(String posterLink) {
+		this.posterLink = posterLink;
+	}
 }
