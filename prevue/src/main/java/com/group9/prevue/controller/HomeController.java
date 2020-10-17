@@ -34,13 +34,13 @@ public class HomeController {
 	private TheaterRepository theaterRepository;
 	
 	@PostMapping("/theater_showtimes")
-	public Showtimes getShowtimesAtTheater(@RequestParam Long theaterId) {
+	public List<Showtimes> getShowtimesAtTheater(@RequestParam Long theaterId) {
 		Theater theater = theaterRepository.findById(theaterId).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
 		return showtimeRepository.findByTheater(theater);
 	}
 	
 	@PostMapping("/movie_showtimes")
-	public Showtimes getMovieShowtimes(@RequestParam Long movieId) {
+	public List<Showtimes> getMovieShowtimes(@RequestParam Long movieId) {
 		Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new RuntimeException("Error: Movie not found"));
 		return showtimeRepository.findByMovie(movie);
 	}

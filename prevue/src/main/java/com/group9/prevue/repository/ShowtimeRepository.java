@@ -12,8 +12,8 @@ import com.group9.prevue.model.Showtimes;
 @Repository
 public interface ShowtimeRepository extends JpaRepository<Showtimes, Long>{
 
-	Showtimes findByTheater(Theater theaterId);
-	Showtimes findByMovie(Movie movieId);
+	List<Showtimes> findByTheater(Theater theaterId);
+	List<Showtimes> findByMovie(Movie movieId);
 	Showtimes findByTheaterAndMovie(Theater theaterId, Movie movieId);
 	boolean existsByTheaterAndMovie(Theater theaterId, Movie movieId);
 }
