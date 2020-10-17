@@ -54,7 +54,7 @@ public class ManagerController {
 	
 	@PostMapping("/add_movie")
 	public ResponseEntity<?> addMovie(@RequestBody AddMovieRequest request){
-		Movie movie = new Movie(request.getTitle(), request.getDescription());
+		Movie movie = new Movie(request.getTitle(), request.getDescription(), request.getPosterLink());
 		
 		Set<String> strGenres = request.getGenre();
 		Set<Genre> genres = new HashSet<>();

@@ -14,6 +14,7 @@ public class Movie {
 	
 	private String title;
 	private String description;
+	private String posterLink;
 	
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "movie_genres",
@@ -23,9 +24,10 @@ public class Movie {
 	
 	public Movie() { }
 	
-	public Movie(String title, String description) {
+	public Movie(String title, String description, String posterLink) {
 		this.title = title;
 		this.description = description;
+		this.posterLink = posterLink;
 	}
 
 	public Long getId() {

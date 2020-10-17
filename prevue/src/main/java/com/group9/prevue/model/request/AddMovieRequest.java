@@ -6,14 +6,16 @@ public class AddMovieRequest {
 
 	private String title;
 	private String description;
+	private String posterLink;
 	
 	private Set<String> genre;
 	
 	public AddMovieRequest () { }
 	
-	public AddMovieRequest(String title, String description) {
+	public AddMovieRequest(String title, String description, String posterLink) {
 		this.title = title;
 		this.description = description;
+		this.posterLink = posterLink;
 	}
 
 	public String getTitle() {
@@ -38,5 +40,13 @@ public class AddMovieRequest {
 
 	public void setGenre(Set<String> genre) {
 		this.genre = genre;
+	}
+
+	public String getPosterLink() {
+		return posterLink;
+	}
+
+	public void setPosterLink(String posterLink) {
+		this.posterLink = posterLink;
 	}
 }
