@@ -19,7 +19,7 @@ import com.group9.prevue.repository.MovieRepository;
 import com.group9.prevue.repository.TheaterRepository;
 import com.group9.prevue.repository.ShowtimeRepository;
 
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"https://localhost:3000", "https://localhost:8080", "https://localhost:5555"})
 @RestController
 @RequestMapping("/api/home")
 public class HomeController {

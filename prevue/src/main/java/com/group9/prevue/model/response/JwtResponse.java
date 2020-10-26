@@ -1,22 +1,14 @@
 package com.group9.prevue.model.response;
 
-import java.util.Set;
-
-import com.group9.prevue.model.Role;
-
 public class JwtResponse {
 
 	private String token;
 	private String type = "Bearer";
-	private Long id;
-	private String email;
-	private Set<Role> roles;
+	private String userId;
 	
-	public JwtResponse(String token, Long id, String email, Set<Role> roles) {
+	public JwtResponse(String token, String userId) {
 		this.token = token;
-		this.id = id;
-		this.email = email;
-		this.roles = roles;
+		this.userId = userId;
 	}
 
 	public String getToken() {
@@ -35,27 +27,11 @@ public class JwtResponse {
 		this.type = type;
 	}
 
-	public Long getId() {
-		return id;
+	public String getUserId() {
+		return userId;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public Set<Role> getRoles() {
-		return roles;
-	}
-
-	public void setRoles(Set<Role> roles) {
-		this.roles = roles;
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 }

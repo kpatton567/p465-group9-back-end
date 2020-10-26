@@ -11,6 +11,8 @@ public class Theater {
 	private Long id;
 	
 	private String name;
+	@OneToOne
+	private User manager;
 	
 	public Theater() { }
 	
@@ -32,6 +34,14 @@ public class Theater {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public User getManager() {
+		return manager;
+	}
+
+	public void setManager(User manager) {
+		this.manager = manager;
 	}
 	
 	

@@ -10,4 +10,5 @@ import com.group9.prevue.model.User;
 public interface UserRepository extends JpaRepository<User, Long>{
 
 	Boolean existsByUserId(String userId);
+	User findByUserId(String userId);
 }

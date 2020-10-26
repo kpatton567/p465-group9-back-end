@@ -7,12 +7,14 @@ import java.util.Set;
 import java.util.HashSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.group9.prevue.model.Theater;
 import com.group9.prevue.model.Movie;
@@ -26,9 +28,10 @@ import com.group9.prevue.repository.GenreRepository;
 import com.group9.prevue.repository.MovieRepository;
 import com.group9.prevue.repository.TheaterRepository;
 import com.group9.prevue.repository.ShowtimeRepository;
+import com.group9.prevue.utility.JwtUtils;
 
 
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"https://localhost:3000", "https://localhost:8080", "https://localhost:5555"})
 @RestController
 @RequestMapping("/api/manage")
 public class ManagerController {
@@ -45,10 +48,21 @@ public class ManagerController {
 	@Autowired
 	private GenreRepository genreRepository;
 	
+	@Autowired
+	private JwtUtils jwtUtils;
+	
 	@PostMapping("/add_showtime")
-	public ResponseEntity<?> addShowtime(@RequestBody AddShowtimeRequest request){
+	public ResponseEntity<?> addShowtime(@RequestHeader(name = "Authorization") String token, @RequestBody AddShowtimeRequest request){
+		
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
 		Movie movie = movieRepository.findById(request.getMovieId()).orElseThrow(() -> new RuntimeException("Error: Movie not found"));
 		Theater theater = theaterRepository.findById(request.getTheaterId()).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
+		
+		if (!(theater.getManager().getUserId().equals(jwtUtils.getUserFromToken(token.substring(7)))))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
 		if (showtimeRepository.existsByTheaterAndMovie(theater, movie)) {
 			Showtimes showtimes = showtimeRepository.findByTheaterAndMovie(theater, movie);
 			List<Date> dates = showtimes.getShowtimes();
@@ -67,7 +81,11 @@ public class ManagerController {
 	}
 	
 	@PostMapping("/add_movie")
-	public ResponseEntity<?> addMovie(@RequestBody AddMovieRequest request){
+	public ResponseEntity<?> addMovie(@RequestHeader(name = "Authorization") String token, @RequestBody AddMovieRequest request){
+		
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
 		Movie movie = new Movie(request.getTitle(), request.getDescription(), request.getPosterLink());
 		
 		Set<String> strGenres = request.getGenre();

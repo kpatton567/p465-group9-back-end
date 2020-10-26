@@ -8,32 +8,26 @@ import javax.mail.internet.AddressException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.group9.prevue.model.ERole;
-import com.group9.prevue.model.Email;
-import com.group9.prevue.model.OneTimePassword;
-import com.group9.prevue.model.SendEmail;
 import com.group9.prevue.model.User;
-import com.group9.prevue.model.request.LoginRequest;
 import com.group9.prevue.model.response.JwtResponse;
 import com.group9.prevue.model.response.MessageResponse;
-import com.group9.prevue.model.Role;
 import com.group9.prevue.model.JwtBlacklist;
 import com.group9.prevue.repository.UserRepository;
-import com.group9.prevue.security.JwtUtils;
-import com.group9.prevue.repository.RoleRepository;
+import com.group9.prevue.utility.JwtUtils;
 import com.group9.prevue.repository.JwtBlacklistRepository;
 
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"https://localhost:3000", "https://localhost:8080"/*, "https://localhost:5555"*/})
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -44,13 +38,8 @@ public class AuthController {
 	//@Autowired
 	//private RoleRepository roleRepository;
 	
-	//@Autowired
-	//private JwtBlacklistRepository jwtBlacklistRepository;
-	
-	//@Bean
-	//public PasswordEncoder passwordEncoder() {
-	//	return new BCryptPasswordEncoder();
-	//}
+	@Autowired
+	private JwtBlacklistRepository jwtBlacklistRepository;
 	
 	@Autowired
 	JwtUtils jwtUtils;
@@ -60,12 +49,35 @@ public class AuthController {
 		return userRepository.existsByUserId(userId);
 	}
 	
+	@PostMapping("/get_token")
+	ResponseEntity<?> getToken(@RequestParam String userId) {
+		
+		String jwt = jwtUtils.generateJwtToken(userId);
+		
+		return ResponseEntity.ok(new JwtResponse(jwt, userId));
+	}
 	
 	@PostMapping("/register")
-	ResponseEntity<?> register(@RequestParam String userId) {
+	ResponseEntity<?> register(@RequestParam String userId, @RequestParam ERole role) {
 		
-		userRepository.save(new User(userId));
+		userRepository.save(new User(userId, role));
 		
 		return ResponseEntity.ok(new MessageResponse("User added successfully"));
+	}
+	
+	@PostMapping("invalidate_token")
+	ResponseEntity<?> invalidateToken(@RequestHeader(name = "Authorization") String token) {
+		if (token != null && token.startsWith("Bearer ")) {
+			JwtBlacklist jwtBlacklist = new JwtBlacklist(token.substring(7));
+			jwtBlacklistRepository.save(jwtBlacklist);
+			return ResponseEntity.ok(new MessageResponse("Token invalidated"));
+		}
+		
+		return ResponseEntity.badRequest().body(new MessageResponse("No token in request"));
+	}
+	
+	@GetMapping("user/{userId}")
+	User getUser(@PathVariable String userId) {
+		return userRepository.findByUserId(userId);
 	}
 }

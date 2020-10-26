@@ -14,11 +14,13 @@ public class User {
 	private Long id;
 	
 	private String userId;
+	private ERole role;
 	
 	public User() {}
 	
-	public User(String userId) {
+	public User(String userId, ERole role) {
 		this.userId = userId;
+		this.role = role;
 	}
 
 	public Long getId() {
@@ -35,5 +37,13 @@ public class User {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
+	}
+
+	public ERole getRole() {
+		return role;
+	}
+
+	public void setRole(ERole role) {
+		this.role = role;
 	}
 }
