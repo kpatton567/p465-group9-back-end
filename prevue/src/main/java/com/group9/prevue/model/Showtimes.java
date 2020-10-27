@@ -1,9 +1,11 @@
 package com.group9.prevue.model;
 
 import javax.persistence.*;
+
+import org.springframework.data.util.Pair;
+
 import java.util.Date;
 import java.util.List;
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "showtimes")
@@ -19,7 +21,7 @@ public class Showtimes {
 	private Movie movie;
 	
 	@ElementCollection
-	private List<Date> showtimes;
+	private List<Pair<Date, Double>> showtimes;
 	
 	public Showtimes() { }
 	
@@ -53,11 +55,11 @@ public class Showtimes {
 		this.movie = movie;
 	}
 
-	public List<Date> getShowtimes() {
+	public List<Pair<Date, Double>> getShowtimes() {
 		return showtimes;
 	}
 
-	public void setShowtimes(List<Date> showtimes) {
+	public void setShowtimes(List<Pair<Date, Double>> showtimes) {
 		this.showtimes = showtimes;
 	}
 	

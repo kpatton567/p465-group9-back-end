@@ -7,8 +7,11 @@ public class AddShowtimeRequest {
 
 	private Long theaterId;
 	private Long movieId;
+	
 	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private Date showtime;
+	
+	private Double price;
 
 	public Long getTheaterId() {
 		return theaterId;
@@ -32,6 +35,14 @@ public class AddShowtimeRequest {
 
 	public void setShowtime(Date showtime) {
 		this.showtime = showtime;
+	}
+
+	public Double getPrice() {
+		return price;
+	}
+
+	public void setPrice(Double price) {
+		this.price = price;
 	}
 	
 }

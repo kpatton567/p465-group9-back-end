@@ -7,9 +7,11 @@ import java.util.Set;
 import java.util.HashSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,16 +24,15 @@ import com.group9.prevue.model.EGenre;
 import com.group9.prevue.model.Genre;
 import com.group9.prevue.model.request.AddMovieRequest;
 import com.group9.prevue.model.Showtimes;
+import com.group9.prevue.model.Payment;
+import com.group9.prevue.model.User;
 import com.group9.prevue.model.request.AddShowtimeRequest;
 import com.group9.prevue.model.response.MessageResponse;
-import com.group9.prevue.repository.GenreRepository;
-import com.group9.prevue.repository.MovieRepository;
-import com.group9.prevue.repository.TheaterRepository;
-import com.group9.prevue.repository.ShowtimeRepository;
+import com.group9.prevue.repository.*;
 import com.group9.prevue.utility.JwtUtils;
 
 
-@CrossOrigin(origins = {"https://localhost:3000", "https://localhost:8080", "https://localhost:5555"})
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080", "http://localhost:5555"})
 @RestController
 @RequestMapping("/api/manage")
 public class ManagerController {
@@ -47,6 +48,12 @@ public class ManagerController {
 	
 	@Autowired
 	private GenreRepository genreRepository;
+	
+	@Autowired
+	private UserRepository userRepository;
+	
+	@Autowired
+	private PaymentRepository paymentRepository;
 	
 	@Autowired
 	private JwtUtils jwtUtils;
@@ -65,15 +72,15 @@ public class ManagerController {
 		
 		if (showtimeRepository.existsByTheaterAndMovie(theater, movie)) {
 			Showtimes showtimes = showtimeRepository.findByTheaterAndMovie(theater, movie);
-			List<Date> dates = showtimes.getShowtimes();
-			dates.add(request.getShowtime());
+			List<Pair<Date,Double>> dates = showtimes.getShowtimes();
+			dates.add(Pair.of(request.getShowtime(), request.getPrice()));
 			showtimes.setShowtimes(dates);
 			showtimeRepository.save(showtimes);
 			return ResponseEntity.ok(new MessageResponse("Showtime added successfully"));
 		} else {
 			Showtimes showtimes = new Showtimes(theater, movie);
-			List<Date> dates = new ArrayList<Date>();
-			dates.add(request.getShowtime());
+			List<Pair<Date, Double>> dates = new ArrayList<Pair<Date, Double>>();
+			dates.add(Pair.of(request.getShowtime(), request.getPrice()));
 			showtimes.setShowtimes(dates);
 			showtimeRepository.save(showtimes);
 			return ResponseEntity.ok(new MessageResponse("Showtime added successfully"));
@@ -150,4 +157,16 @@ public class ManagerController {
 		movieRepository.save(movie);
 		return ResponseEntity.ok(new MessageResponse("Movie added successfully"));
 	}
+	
+	@GetMapping("transaction_history")
+	public List<Payment> getTransactionHistory(@RequestHeader(name = "Authorization") String token){
+		/*
+		 * Validate token
+		 */
+		
+		User manager = userRepository.findByUserId(token.substring(7));
+		Theater theater = theaterRepository.findByManager(manager);
+		return paymentRepository.findByTheater(theater);
+	}
+	
 }

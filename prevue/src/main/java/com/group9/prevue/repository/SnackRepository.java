@@ -5,11 +5,9 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.group9.prevue.model.Theater;
-import com.group9.prevue.model.User;
+import com.group9.prevue.model.Snack;
 
 @Repository
-public interface TheaterRepository extends JpaRepository<Theater, Long>{
+public interface SnackRepository extends JpaRepository<Snack, Long>{
 
-	Theater findByManager(User manager);
 }
