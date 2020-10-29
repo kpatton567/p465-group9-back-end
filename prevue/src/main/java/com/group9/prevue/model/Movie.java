@@ -5,7 +5,7 @@ import java.util.HashSet;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "movies")
+@Table(name = "movies", uniqueConstraints = {@UniqueConstraint(columnNames = "title")})
 public class Movie {
 
 	@Id
