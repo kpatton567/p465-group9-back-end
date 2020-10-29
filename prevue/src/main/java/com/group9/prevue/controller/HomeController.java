@@ -1,6 +1,7 @@
 package com.group9.prevue.controller;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.group9.prevue.model.Movie;
 import com.group9.prevue.model.Theater;
 import com.group9.prevue.model.Showtimes;
+import com.group9.prevue.model.ShowtimePrice;
+import com.group9.prevue.model.response.MovieShowtime;
 import com.group9.prevue.repository.MovieRepository;
 import com.group9.prevue.repository.TheaterRepository;
 import com.group9.prevue.repository.ShowtimeRepository;
@@ -40,9 +43,16 @@ public class HomeController {
 	}
 	
 	@PostMapping("/movie_showtimes")
-	public List<Showtimes> getMovieShowtimes(@RequestParam Long movieId) {
+	public List<MovieShowtime> getMovieShowtimes(@RequestParam Long movieId) {
 		Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new RuntimeException("Error: Movie not found"));
-		return showtimeRepository.findByMovie(movie);
+		List<Showtimes> showtimes = showtimeRepository.findByMovie(movie);
+		List<MovieShowtime> movieShowtimes = new ArrayList<MovieShowtime>();
+		
+		showtimes.forEach(showtime -> {
+			movieShowtimes.add(new MovieShowtime(showtime.getTheater().getId(), showtime.getTheater().getName(), showtime.getShowtimes()));
+		});
+		
+		return movieShowtimes;
 	}
 	
 	@PostMapping("/movie_theater_showtimes")

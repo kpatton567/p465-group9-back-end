@@ -8,6 +8,7 @@ import com.group9.prevue.model.User;
 @Table(name = "payment_info")
 public class PaymentInfo {
 
+	@Id
 	private String number;
 	private String expiration;
 	private String cvv;

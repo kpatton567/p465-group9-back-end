@@ -18,16 +18,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-import com.group9.prevue.model.Theater;
-import com.group9.prevue.model.Movie;
-import com.group9.prevue.model.EGenre;
-import com.group9.prevue.model.Genre;
-import com.group9.prevue.model.request.AddMovieRequest;
-import com.group9.prevue.model.Showtimes;
-import com.group9.prevue.model.Payment;
-import com.group9.prevue.model.User;
-import com.group9.prevue.model.request.AddShowtimeRequest;
-import com.group9.prevue.model.response.MessageResponse;
+import com.group9.prevue.model.*;
+import com.group9.prevue.model.request.*;
+import com.group9.prevue.model.response.*;
 import com.group9.prevue.repository.*;
 import com.group9.prevue.utility.JwtUtils;
 
@@ -50,6 +43,9 @@ public class ManagerController {
 	private GenreRepository genreRepository;
 	
 	@Autowired
+	private SnackRepository snackRepository;
+	
+	@Autowired
 	private UserRepository userRepository;
 	
 	@Autowired
@@ -59,39 +55,43 @@ public class ManagerController {
 	private JwtUtils jwtUtils;
 	
 	@PostMapping("/add_showtime")
-	public ResponseEntity<?> addShowtime(@RequestHeader(name = "Authorization") String token, @RequestBody AddShowtimeRequest request){
+	public ResponseEntity<?> addShowtime(/*@RequestHeader(name = "Authorization") String token, */@RequestBody AddShowtimeRequest request){
 		
-		if (!jwtUtils.validateToken(token))
+		/*if (!jwtUtils.validateToken(token))
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		*/
 		
 		Movie movie = movieRepository.findById(request.getMovieId()).orElseThrow(() -> new RuntimeException("Error: Movie not found"));
 		Theater theater = theaterRepository.findById(request.getTheaterId()).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
 		
-		if (!(theater.getManager().getUserId().equals(jwtUtils.getUserFromToken(token.substring(7)))))
+		/*if (!(theater.getManager().getUserId().equals(jwtUtils.getUserFromToken(token.substring(7)))))
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		*/
 		
 		if (showtimeRepository.existsByTheaterAndMovie(theater, movie)) {
 			Showtimes showtimes = showtimeRepository.findByTheaterAndMovie(theater, movie);
-			List<Pair<Date,Double>> dates = showtimes.getShowtimes();
-			dates.add(Pair.of(request.getShowtime(), request.getPrice()));
-			showtimes.setShowtimes(dates);
+			List<ShowtimePrice> showtimePrices = showtimes.getShowtimes();
+			showtimePrices.add(new ShowtimePrice(request.getShowtime(), request.getPrice()));
+			showtimes.setShowtimes(showtimePrices);
 			showtimeRepository.save(showtimes);
 			return ResponseEntity.ok(new MessageResponse("Showtime added successfully"));
 		} else {
 			Showtimes showtimes = new Showtimes(theater, movie);
-			List<Pair<Date, Double>> dates = new ArrayList<Pair<Date, Double>>();
-			dates.add(Pair.of(request.getShowtime(), request.getPrice()));
-			showtimes.setShowtimes(dates);
+			List<ShowtimePrice> showtimePrices = new ArrayList<ShowtimePrice>();
+			showtimePrices.add(new ShowtimePrice(request.getShowtime(), request.getPrice()));
+			showtimes.setShowtimes(showtimePrices);
 			showtimeRepository.save(showtimes);
 			return ResponseEntity.ok(new MessageResponse("Showtime added successfully"));
 		}
 	}
 	
 	@PostMapping("/add_movie")
-	public ResponseEntity<?> addMovie(@RequestHeader(name = "Authorization") String token, @RequestBody AddMovieRequest request){
+	public ResponseEntity<?> addMovie(/*@RequestHeader(name = "Authorization") String token, */@RequestBody AddMovieRequest request){
 		
+		/*
 		if (!jwtUtils.validateToken(token))
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		*/
 		
 		Movie movie = new Movie(request.getTitle(), request.getDescription(), request.getPosterLink());
 		
@@ -158,15 +158,44 @@ public class ManagerController {
 		return ResponseEntity.ok(new MessageResponse("Movie added successfully"));
 	}
 	
-	@GetMapping("transaction_history")
-	public List<Payment> getTransactionHistory(@RequestHeader(name = "Authorization") String token){
+	@PostMapping("/add_snack")
+	public ResponseEntity<?> addSnack(@RequestHeader(name = "Authorization") String token, @RequestBody AddSnackRequest request) {
 		/*
 		 * Validate token
 		 */
 		
 		User manager = userRepository.findByUserId(token.substring(7));
 		Theater theater = theaterRepository.findByManager(manager);
-		return paymentRepository.findByTheater(theater);
+		Snack snack = new Snack(request.getName(), request.getPrice());
+		snack.setTheater(theater);
+		snackRepository.save(snack);
+		
+		return ResponseEntity.ok(new MessageResponse("Snack added successfully"));
+	}
+	
+	@GetMapping("transaction_history")
+	public List<TheaterTransaction> getTransactionHistory(@RequestHeader(name = "Authorization") String token){
+		/*
+		 * Validate token
+		 */
+		
+		User manager = userRepository.findByUserId(token.substring(7));
+		Theater theater = theaterRepository.findByManager(manager);
+		List<Payment> payments = paymentRepository.findByTheater(theater);
+		List<TheaterTransaction> transactions = new ArrayList<TheaterTransaction>();
+		
+		payments.forEach(payment -> {
+			double[] total = {0.0};
+			payment.getSnacks().forEach(snack -> {
+				total[0] += snack.getPrice();
+			});
+			
+			total[0] += payment.getShowtimePrice().getPrice() * payment.getTicketCount();
+			TheaterTransaction transaction = new TheaterTransaction(payment.getId(), payment.getTheater().getId(), total[0], payment.getPaymentDate());
+			transactions.add(transaction);
+		});
+		
+		return transactions;
 	}
 	
 }

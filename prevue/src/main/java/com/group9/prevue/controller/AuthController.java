@@ -7,6 +7,7 @@ import javax.mail.internet.AddressException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -63,6 +64,15 @@ public class AuthController {
 		userRepository.save(new User(userId, role));
 		
 		return ResponseEntity.ok(new MessageResponse("User added successfully"));
+	}
+	
+	@PostMapping("/user_role")
+	ResponseEntity<?> getUserRole(@RequestHeader(name = "Authorization") String token) {
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		User user = userRepository.findByUserId(jwtUtils.getUserFromToken(token.substring(7)));
+		return ResponseEntity.ok(user.getRole());
 	}
 	
 	@PostMapping("invalidate_token")

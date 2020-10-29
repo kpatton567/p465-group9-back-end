@@ -21,7 +21,7 @@ public class Showtimes {
 	private Movie movie;
 	
 	@ElementCollection
-	private List<Pair<Date, Double>> showtimes;
+	private List<ShowtimePrice> showtimes;
 	
 	public Showtimes() { }
 	
@@ -55,11 +55,11 @@ public class Showtimes {
 		this.movie = movie;
 	}
 
-	public List<Pair<Date, Double>> getShowtimes() {
+	public List<ShowtimePrice> getShowtimes() {
 		return showtimes;
 	}
 
-	public void setShowtimes(List<Pair<Date, Double>> showtimes) {
+	public void setShowtimes(List<ShowtimePrice> showtimes) {
 		this.showtimes = showtimes;
 	}
 	

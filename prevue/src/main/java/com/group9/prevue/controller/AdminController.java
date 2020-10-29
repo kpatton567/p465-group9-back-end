@@ -34,11 +34,12 @@ public class AdminController {
 	@PostMapping("add_theater")
 	public ResponseEntity<?> addTheater(@RequestHeader(name = "Authorization") String token, @RequestBody AddTheaterRequest request){
 		
-		if (!jwtUtils.validateToken(token))
+		/*if (!jwtUtils.validateToken(token))
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		*/
 		
 		Theater theater = new Theater(request.getName());
-		theater.setManager(userRepository.findByUserId(jwtUtils.getUserFromToken(token.substring(7))));
+		//theater.setManager(userRepository.findByUserId(jwtUtils.getUserFromToken(token.substring(7))));
 		
 		theaterRepository.save(theater);
 		return ResponseEntity.ok(new MessageResponse("Theater added successfully"));
