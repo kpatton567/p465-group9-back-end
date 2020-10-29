@@ -49,7 +49,7 @@ public class HomeController {
 		List<MovieShowtime> movieShowtimes = new ArrayList<MovieShowtime>();
 		
 		showtimes.forEach(showtime -> {
-			movieShowtimes.add(new MovieShowtime(showtime.getTheater().getId(), showtime.getTheater().getName(), showtime.getShowtimes()));
+			movieShowtimes.add(new MovieShowtime(showtime.getMovie().getId(), showtime.getTheater().getId(), showtime.getTheater().getName(), showtime.getShowtimes()));
 		});
 		
 		return movieShowtimes;
