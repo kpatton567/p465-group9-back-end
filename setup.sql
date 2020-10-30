@@ -1,4 +1,5 @@
-insert into users values('123456789', 
+insert into users values('123456789', 1);
+insert into users values('987654321', 1);
 
 insert into movies values(1, 'After Thanos snaps, the remaining Avengers assemble to try to find a way to restore the universe.', 'https://images-na.ssl-images-amazon.com/images/I/81ai6zx6eXL._AC_SL1304_.jpg', 'Avengers: Endgame');
 insert into movies values(2, 'Two young sisters find that all the mirrors in their estranged aunts house are covered or hidden. When one of them happens upon a mirror in the basement, she unknowingly releases a malicious demon.', 'https://media-cache.cinematerial.com/p/500x/jllmn2cv/behind-you-movie-poster.jpg?v=1600320617', 'Behind You');

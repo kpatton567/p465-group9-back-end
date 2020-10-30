@@ -185,7 +185,7 @@ public class ManagerController {
 		payments.forEach(payment -> {
 			double[] total = {0.0};
 			payment.getSnacks().forEach(snack -> {
-				total[0] += snack.getSnack().getPrice();
+				total[0] += snack.getSnack().getPrice() * snack.getQuantity();
 			});
 			
 			total[0] += payment.getShowtimePrice().getPrice() * payment.getTicketCount();
