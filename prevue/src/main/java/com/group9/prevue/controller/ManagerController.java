@@ -60,13 +60,12 @@ public class ManagerController {
 		if (!jwtUtils.validateToken(token))
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		
+		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		if (manager.getRole() != ERole.ROLE_MANAGER)
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
 		
 		Movie movie = movieRepository.findById(request.getMovieId()).orElseThrow(() -> new RuntimeException("Error: Movie not found"));
-		Theater theater = theaterRepository.findById(request.getTheaterId()).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
-		
-		if (!(theater.getManager().getUserId().equals(jwtUtils.getUserFromToken(token.substring(7)))))
-			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
-		
+		Theater theater = theaterRepository.findByManager(manager).orElseThrow(() -> new RuntimeException("Error: No theater with this manager"));
 		
 		try {
 			showtimeRepository.save(new Showtime(theater, movie, request.getShowtime(), request.getPrice(), theater.getCapacity()));
@@ -83,7 +82,7 @@ public class ManagerController {
 		if (!jwtUtils.validateToken(token))
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		
-		User manager = userRepository.findById(token.substring(7)).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
 		if (manager.getRole() != ERole.ROLE_MANAGER)
 			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
 		
@@ -157,11 +156,11 @@ public class ManagerController {
 		if (!jwtUtils.validateToken(token))
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		
-		User manager = userRepository.findById(token.substring(7)).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
 		if (manager.getRole() != ERole.ROLE_MANAGER)
 			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
 		
-		Theater theater = theaterRepository.findByManager(manager);
+		Theater theater = theaterRepository.findByManager(manager).orElseThrow(() -> new RuntimeException("Error: No theater with this manager"));
 		Snack snack = new Snack(request.getName(), request.getPrice());
 		snack.setTheater(theater);
 		snackRepository.save(snack);
@@ -175,11 +174,11 @@ public class ManagerController {
 		if (!jwtUtils.validateToken(token))
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		
-		User manager = userRepository.findById(token.substring(7)).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
 		if (manager.getRole() != ERole.ROLE_MANAGER)
 			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
 		
-		Theater theater = theaterRepository.findByManager(manager);
+		Theater theater = theaterRepository.findByManager(manager).orElseThrow(() -> new RuntimeException("Error: No theater with this manager"));
 		List<Payment> payments = paymentRepository.findByTheater(theater);
 		List<TheaterTransaction> transactions = new ArrayList<TheaterTransaction>();
 		
