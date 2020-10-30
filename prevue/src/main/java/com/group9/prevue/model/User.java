@@ -9,11 +9,13 @@ import java.util.HashSet;
 @Table(name = "users", uniqueConstraints = { @UniqueConstraint(columnNames = "userId") } )
 public class User {
 
-	@Id
+	/*@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private Long id;*/
 	
+	@Id
 	private String userId;
+	
 	private ERole role;
 	
 	public User() {}
@@ -23,13 +25,13 @@ public class User {
 		this.role = role;
 	}
 
-	public Long getId() {
+	/*public Long getId() {
 		return id;
 	}
 
 	public void setId(Long id) {
 		this.id = id;
-	}
+	}*/
 
 	public String getUserId() {
 		return userId;

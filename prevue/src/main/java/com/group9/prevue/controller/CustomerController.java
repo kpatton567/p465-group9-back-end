@@ -37,13 +37,7 @@ public class CustomerController {
 	private JwtUtils jwtUtils;
 	
 	@PostMapping("customer_payment")
-	public ResponseEntity<?> submitCustomerPayment(){
-		
-		return ResponseEntity.ok(new MessageResponse("Payment successful"));
-	}
-	
-	@PostMapping("guest_payment")
-	public ResponseEntity<?> submitGuestPayment(){
+	public ResponseEntity<?> submitCustomerPayment(@RequestHeader(name = "Authorization") String token){
 		
 		return ResponseEntity.ok(new MessageResponse("Payment successful"));
 	}

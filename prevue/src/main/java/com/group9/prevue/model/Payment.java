@@ -22,7 +22,7 @@ public class Payment {
 	private Date paymentDate;
 	
 	@Embedded
-	private ShowtimePrice showtimePrice;
+	private ShowtimeInfo showtimePrice;
 	private Integer ticketCount;
 	
 	@OneToOne
@@ -89,11 +89,11 @@ public class Payment {
 		this.movie = movie;
 	}
 
-	public ShowtimePrice getShowtimePrice() {
+	public ShowtimeInfo getShowtimePrice() {
 		return showtimePrice;
 	}
 
-	public void setShowtimePrice(ShowtimePrice showtimePrice) {
+	public void setShowtimePrice(ShowtimeInfo showtimePrice) {
 		this.showtimePrice = showtimePrice;
 	}
 

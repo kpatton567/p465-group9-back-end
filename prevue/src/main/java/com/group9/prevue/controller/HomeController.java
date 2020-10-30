@@ -2,6 +2,8 @@ package com.group9.prevue.controller;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,8 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.group9.prevue.model.Movie;
 import com.group9.prevue.model.Theater;
-import com.group9.prevue.model.Showtimes;
-import com.group9.prevue.model.ShowtimePrice;
+import com.group9.prevue.model.Showtime;
+import com.group9.prevue.model.ShowtimeInfo;
 import com.group9.prevue.model.response.MovieShowtime;
 import com.group9.prevue.repository.MovieRepository;
 import com.group9.prevue.repository.TheaterRepository;
@@ -37,7 +39,7 @@ public class HomeController {
 	private TheaterRepository theaterRepository;
 	
 	@PostMapping("/theater_showtimes")
-	public List<Showtimes> getShowtimesAtTheater(@RequestParam Long theaterId) {
+	public List<Showtime> getShowtimesAtTheater(@RequestParam Long theaterId) {
 		Theater theater = theaterRepository.findById(theaterId).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
 		return showtimeRepository.findByTheater(theater);
 	}
@@ -45,18 +47,32 @@ public class HomeController {
 	@PostMapping("/movie_showtimes")
 	public List<MovieShowtime> getMovieShowtimes(@RequestParam Long movieId) {
 		Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new RuntimeException("Error: Movie not found"));
-		List<Showtimes> showtimes = showtimeRepository.findByMovie(movie);
+		List<Showtime> showtimes = showtimeRepository.findByMovie(movie);
 		List<MovieShowtime> movieShowtimes = new ArrayList<MovieShowtime>();
 		
+		Map<Theater, List<ShowtimeInfo>> showtimeMap = new HashMap<>();
+		
 		showtimes.forEach(showtime -> {
-			movieShowtimes.add(new MovieShowtime(showtime.getTheater().getId(), showtime.getTheater().getName(), showtime.getShowtimes()));
+			if(showtimeMap.containsKey(showtime.getTheater())) {
+				List<ShowtimeInfo> showtimeInfo = showtimeMap.get(showtime.getTheater());
+				showtimeInfo.add(new ShowtimeInfo(showtime.getShowtime(), showtime.getPrice()));
+				showtimeMap.put(showtime.getTheater(), showtimeInfo);
+			} else {
+				List<ShowtimeInfo> showtimeInfo = new ArrayList<>();
+				showtimeInfo.add(new ShowtimeInfo(showtime.getShowtime(), showtime.getPrice()));
+				showtimeMap.put(showtime.getTheater(), showtimeInfo);
+			}
+		});
+		
+		showtimeMap.keySet().forEach(theater -> {
+			movieShowtimes.add(new MovieShowtime(theater.getId(), theater.getName(), showtimeMap.get(theater)));
 		});
 		
 		return movieShowtimes;
 	}
 	
 	@PostMapping("/movie_theater_showtimes")
-	public Showtimes getShowtimesForMovieAtTheater(@RequestParam Long theaterId, @RequestParam Long movieId){
+	public List<Showtime> getShowtimesForMovieAtTheater(@RequestParam Long theaterId, @RequestParam Long movieId){
 		Theater theater = theaterRepository.findById(theaterId).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
 		Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new RuntimeException("Error: Movie not found"));
 		return showtimeRepository.findByTheaterAndMovie(theater, movie);

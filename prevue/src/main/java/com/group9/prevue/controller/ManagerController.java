@@ -68,21 +68,13 @@ public class ManagerController {
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		*/
 		
-		if (showtimeRepository.existsByTheaterAndMovie(theater, movie)) {
-			Showtimes showtimes = showtimeRepository.findByTheaterAndMovie(theater, movie);
-			List<ShowtimePrice> showtimePrices = showtimes.getShowtimes();
-			showtimePrices.add(new ShowtimePrice(request.getShowtime(), request.getPrice()));
-			showtimes.setShowtimes(showtimePrices);
-			showtimeRepository.save(showtimes);
-			return ResponseEntity.ok(new MessageResponse("Showtime added successfully"));
-		} else {
-			Showtimes showtimes = new Showtimes(theater, movie);
-			List<ShowtimePrice> showtimePrices = new ArrayList<ShowtimePrice>();
-			showtimePrices.add(new ShowtimePrice(request.getShowtime(), request.getPrice()));
-			showtimes.setShowtimes(showtimePrices);
-			showtimeRepository.save(showtimes);
-			return ResponseEntity.ok(new MessageResponse("Showtime added successfully"));
+		try {
+			showtimeRepository.save(new Showtime(theater, movie, request.getShowtime(), request.getPrice(), theater.getCapacity()));
+		} catch(Exception e) {
+			return ResponseEntity.badRequest().body(new MessageResponse("This movie is already showing at this time"));
 		}
+		
+		return ResponseEntity.ok(new MessageResponse("Showtime added successfully"));
 	}
 	
 	@PostMapping("/add_movie")
