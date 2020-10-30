@@ -55,43 +55,36 @@ public class ManagerController {
 	private JwtUtils jwtUtils;
 	
 	@PostMapping("/add_showtime")
-	public ResponseEntity<?> addShowtime(/*@RequestHeader(name = "Authorization") String token, */@RequestBody AddShowtimeRequest request){
+	public ResponseEntity<?> addShowtime(@RequestHeader(name = "Authorization") String token, @RequestBody AddShowtimeRequest request){
 		
-		/*if (!jwtUtils.validateToken(token))
+		if (!jwtUtils.validateToken(token))
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
-		*/
+		
+		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		if (manager.getRole() != ERole.ROLE_MANAGER)
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
 		
 		Movie movie = movieRepository.findById(request.getMovieId()).orElseThrow(() -> new RuntimeException("Error: Movie not found"));
-		Theater theater = theaterRepository.findById(request.getTheaterId()).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
+		Theater theater = theaterRepository.findByManager(manager).orElseThrow(() -> new RuntimeException("Error: No theater with this manager"));
 		
-		/*if (!(theater.getManager().getUserId().equals(jwtUtils.getUserFromToken(token.substring(7)))))
-			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
-		*/
-		
-		if (showtimeRepository.existsByTheaterAndMovie(theater, movie)) {
-			Showtimes showtimes = showtimeRepository.findByTheaterAndMovie(theater, movie);
-			List<ShowtimePrice> showtimePrices = showtimes.getShowtimes();
-			showtimePrices.add(new ShowtimePrice(request.getShowtime(), request.getPrice()));
-			showtimes.setShowtimes(showtimePrices);
-			showtimeRepository.save(showtimes);
-			return ResponseEntity.ok(new MessageResponse("Showtime added successfully"));
-		} else {
-			Showtimes showtimes = new Showtimes(theater, movie);
-			List<ShowtimePrice> showtimePrices = new ArrayList<ShowtimePrice>();
-			showtimePrices.add(new ShowtimePrice(request.getShowtime(), request.getPrice()));
-			showtimes.setShowtimes(showtimePrices);
-			showtimeRepository.save(showtimes);
-			return ResponseEntity.ok(new MessageResponse("Showtime added successfully"));
+		try {
+			showtimeRepository.save(new Showtime(theater, movie, request.getShowtime(), request.getPrice(), theater.getCapacity()));
+		} catch(Exception e) {
+			return ResponseEntity.badRequest().body(new MessageResponse("This movie is already showing at this time"));
 		}
+		
+		return ResponseEntity.ok(new MessageResponse("Showtime added successfully"));
 	}
 	
 	@PostMapping("/add_movie")
-	public ResponseEntity<?> addMovie(/*@RequestHeader(name = "Authorization") String token, */@RequestBody AddMovieRequest request){
+	public ResponseEntity<?> addMovie(@RequestHeader(name = "Authorization") String token, @RequestBody AddMovieRequest request){
 		
-		/*
 		if (!jwtUtils.validateToken(token))
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
-		*/
+		
+		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		if (manager.getRole() != ERole.ROLE_MANAGER)
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
 		
 		Movie movie = new Movie(request.getTitle(), request.getDescription(), request.getPosterLink());
 		
@@ -160,12 +153,14 @@ public class ManagerController {
 	
 	@PostMapping("/add_snack")
 	public ResponseEntity<?> addSnack(@RequestHeader(name = "Authorization") String token, @RequestBody AddSnackRequest request) {
-		/*
-		 * Validate token
-		 */
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		
-		User manager = userRepository.findByUserId(token.substring(7));
-		Theater theater = theaterRepository.findByManager(manager);
+		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		if (manager.getRole() != ERole.ROLE_MANAGER)
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
+		
+		Theater theater = theaterRepository.findByManager(manager).orElseThrow(() -> new RuntimeException("Error: No theater with this manager"));
 		Snack snack = new Snack(request.getName(), request.getPrice());
 		snack.setTheater(theater);
 		snackRepository.save(snack);
@@ -174,20 +169,23 @@ public class ManagerController {
 	}
 	
 	@GetMapping("transaction_history")
-	public List<TheaterTransaction> getTransactionHistory(@RequestHeader(name = "Authorization") String token){
-		/*
-		 * Validate token
-		 */
+	public ResponseEntity<?> getTransactionHistory(@RequestHeader(name = "Authorization") String token){
+
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		
-		User manager = userRepository.findByUserId(token.substring(7));
-		Theater theater = theaterRepository.findByManager(manager);
+		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		if (manager.getRole() != ERole.ROLE_MANAGER)
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
+		
+		Theater theater = theaterRepository.findByManager(manager).orElseThrow(() -> new RuntimeException("Error: No theater with this manager"));
 		List<Payment> payments = paymentRepository.findByTheater(theater);
 		List<TheaterTransaction> transactions = new ArrayList<TheaterTransaction>();
 		
 		payments.forEach(payment -> {
 			double[] total = {0.0};
 			payment.getSnacks().forEach(snack -> {
-				total[0] += snack.getPrice();
+				total[0] += snack.getSnack().getPrice() * snack.getQuantity();
 			});
 			
 			total[0] += payment.getShowtimePrice().getPrice() * payment.getTicketCount();
@@ -195,7 +193,7 @@ public class ManagerController {
 			transactions.add(transaction);
 		});
 		
-		return transactions;
+		return new ResponseEntity<List<TheaterTransaction>>(transactions, HttpStatus.OK);
 	}
 	
 }

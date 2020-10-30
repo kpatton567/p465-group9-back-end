@@ -22,14 +22,14 @@ public class Payment {
 	private Date paymentDate;
 	
 	@Embedded
-	private ShowtimePrice showtimePrice;
+	private ShowtimeInfo showtimePrice;
 	private Integer ticketCount;
 	
 	@OneToOne
 	private PaymentInfo paymentInfo;
 	
 	@ElementCollection
-	private List<Snack> snacks;
+	private List<SnackQuantity> snacks;
 	//private Double total;
 	
 	public Payment() {}
@@ -65,11 +65,11 @@ public class Payment {
 		this.paymentInfo = paymentInfo;
 	}
 	
-	public List<Snack> getSnacks() {
+	public List<SnackQuantity> getSnacks() {
 		return snacks;
 	}
 	
-	public void setSnacks(List<Snack> snacks) {
+	public void setSnacks(List<SnackQuantity> snacks) {
 		this.snacks = snacks;
 	}
 	
@@ -89,11 +89,11 @@ public class Payment {
 		this.movie = movie;
 	}
 
-	public ShowtimePrice getShowtimePrice() {
+	public ShowtimeInfo getShowtimePrice() {
 		return showtimePrice;
 	}
 
-	public void setShowtimePrice(ShowtimePrice showtimePrice) {
+	public void setShowtimePrice(ShowtimeInfo showtimePrice) {
 		this.showtimePrice = showtimePrice;
 	}
 

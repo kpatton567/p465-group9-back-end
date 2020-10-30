@@ -7,13 +7,12 @@ import org.springframework.stereotype.Repository;
 
 import com.group9.prevue.model.Movie;
 import com.group9.prevue.model.Theater;
-import com.group9.prevue.model.Showtimes;
+import com.group9.prevue.model.Showtime;
 
 @Repository
-public interface ShowtimeRepository extends JpaRepository<Showtimes, Long>{
+public interface ShowtimeRepository extends JpaRepository<Showtime, Long>{
 
-	List<Showtimes> findByTheater(Theater theaterId);
-	List<Showtimes> findByMovie(Movie movieId);
-	Showtimes findByTheaterAndMovie(Theater theaterId, Movie movieId);
-	boolean existsByTheaterAndMovie(Theater theaterId, Movie movieId);
+	List<Showtime> findByTheater(Theater theaterId);
+	List<Showtime> findByMovie(Movie movieId);
+	List<Showtime> findByTheaterAndMovie(Theater theaterId, Movie movieId);
 }

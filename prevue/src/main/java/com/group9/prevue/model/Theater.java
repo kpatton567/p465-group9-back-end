@@ -14,10 +14,13 @@ public class Theater {
 	@OneToOne
 	private User manager;
 	
+	private Integer capacity;
+	
 	public Theater() { }
 	
-	public Theater(String name) {
+	public Theater(String name, Integer capacity) {
 		this.name = name;
+		this.capacity = capacity;
 	}
 
 	public Long getId() {
@@ -42,6 +45,14 @@ public class Theater {
 
 	public void setManager(User manager) {
 		this.manager = manager;
+	}
+
+	public Integer getCapacity() {
+		return capacity;
+	}
+
+	public void setCapacity(Integer capacity) {
+		this.capacity = capacity;
 	}
 	
 	

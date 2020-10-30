@@ -36,9 +36,6 @@ public class AuthController {
 	@Autowired
 	private UserRepository userRepository;
 	
-	//@Autowired
-	//private RoleRepository roleRepository;
-	
 	@Autowired
 	private JwtBlacklistRepository jwtBlacklistRepository;
 	
@@ -47,7 +44,7 @@ public class AuthController {
 	
 	@PostMapping("check_user")
 	Boolean checkForUser(@RequestParam String userId) {
-		return userRepository.existsByUserId(userId);
+		return userRepository.existsById(userId);
 	}
 	
 	@PostMapping("/get_token")
@@ -61,6 +58,9 @@ public class AuthController {
 	@PostMapping("/register")
 	ResponseEntity<?> register(@RequestParam String userId, @RequestParam ERole role) {
 		
+		if (userRepository.existsById(userId))
+			return ResponseEntity.badRequest().body(new MessageResponse("User already exists"));
+		
 		userRepository.save(new User(userId, role));
 		
 		return ResponseEntity.ok(new MessageResponse("User added successfully"));
@@ -71,7 +71,7 @@ public class AuthController {
 		if (!jwtUtils.validateToken(token))
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		
-		User user = userRepository.findByUserId(jwtUtils.getUserFromToken(token.substring(7)));
+		User user = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
 		return ResponseEntity.ok(user.getRole());
 	}
 	
@@ -88,6 +88,6 @@ public class AuthController {
 	
 	@GetMapping("user/{userId}")
 	User getUser(@PathVariable String userId) {
-		return userRepository.findByUserId(userId);
+		return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Error: User not found"));
 	}
 }

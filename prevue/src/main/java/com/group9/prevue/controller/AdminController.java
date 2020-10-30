@@ -28,18 +28,11 @@ public class AdminController {
 	@Autowired
 	private UserRepository userRepository;
 	
-	@Autowired
-	private JwtUtils jwtUtils;
-	
 	@PostMapping("add_theater")
-	public ResponseEntity<?> addTheater(@RequestHeader(name = "Authorization") String token, @RequestBody AddTheaterRequest request){
+	public ResponseEntity<?> addTheater(@RequestBody AddTheaterRequest request){
 		
-		/*if (!jwtUtils.validateToken(token))
-			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
-		*/
-		
-		Theater theater = new Theater(request.getName());
-		//theater.setManager(userRepository.findByUserId(jwtUtils.getUserFromToken(token.substring(7))));
+		Theater theater = new Theater(request.getName(), request.getCapacity());
+		theater.setManager(userRepository.findByUserId(request.getManagerId()));
 		
 		theaterRepository.save(theater);
 		return ResponseEntity.ok(new MessageResponse("Theater added successfully"));

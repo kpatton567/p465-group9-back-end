@@ -4,14 +4,14 @@ import java.util.Date;
 import javax.persistence.Embeddable;
 
 @Embeddable
-public class ShowtimePrice {
+public class ShowtimeInfo {
 
 	private Date date;
 	private Double price;
 	
-	public ShowtimePrice() {}
+	public ShowtimeInfo() {}
 	
-	public ShowtimePrice(Date date, Double price) {
+	public ShowtimeInfo(Date date, Double price) {
 		this.date = date;
 		this.price = price;
 	}
