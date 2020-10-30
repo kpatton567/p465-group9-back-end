@@ -29,7 +29,7 @@ public class Payment {
 	private PaymentInfo paymentInfo;
 	
 	@ElementCollection
-	private List<Snack> snacks;
+	private List<SnackQuantity> snacks;
 	//private Double total;
 	
 	public Payment() {}
@@ -65,11 +65,11 @@ public class Payment {
 		this.paymentInfo = paymentInfo;
 	}
 	
-	public List<Snack> getSnacks() {
+	public List<SnackQuantity> getSnacks() {
 		return snacks;
 	}
 	
-	public void setSnacks(List<Snack> snacks) {
+	public void setSnacks(List<SnackQuantity> snacks) {
 		this.snacks = snacks;
 	}
 	

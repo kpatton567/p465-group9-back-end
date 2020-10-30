@@ -55,18 +55,18 @@ public class ManagerController {
 	private JwtUtils jwtUtils;
 	
 	@PostMapping("/add_showtime")
-	public ResponseEntity<?> addShowtime(/*@RequestHeader(name = "Authorization") String token, */@RequestBody AddShowtimeRequest request){
+	public ResponseEntity<?> addShowtime(@RequestHeader(name = "Authorization") String token, @RequestBody AddShowtimeRequest request){
 		
-		/*if (!jwtUtils.validateToken(token))
+		if (!jwtUtils.validateToken(token))
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
-		*/
+		
 		
 		Movie movie = movieRepository.findById(request.getMovieId()).orElseThrow(() -> new RuntimeException("Error: Movie not found"));
 		Theater theater = theaterRepository.findById(request.getTheaterId()).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
 		
-		/*if (!(theater.getManager().getUserId().equals(jwtUtils.getUserFromToken(token.substring(7)))))
+		if (!(theater.getManager().getUserId().equals(jwtUtils.getUserFromToken(token.substring(7)))))
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
-		*/
+		
 		
 		try {
 			showtimeRepository.save(new Showtime(theater, movie, request.getShowtime(), request.getPrice(), theater.getCapacity()));
@@ -78,12 +78,14 @@ public class ManagerController {
 	}
 	
 	@PostMapping("/add_movie")
-	public ResponseEntity<?> addMovie(/*@RequestHeader(name = "Authorization") String token, */@RequestBody AddMovieRequest request){
+	public ResponseEntity<?> addMovie(@RequestHeader(name = "Authorization") String token, @RequestBody AddMovieRequest request){
 		
-		/*
 		if (!jwtUtils.validateToken(token))
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
-		*/
+		
+		User manager = userRepository.findById(token.substring(7)).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		if (manager.getRole() != ERole.ROLE_MANAGER)
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
 		
 		Movie movie = new Movie(request.getTitle(), request.getDescription(), request.getPosterLink());
 		
@@ -152,11 +154,13 @@ public class ManagerController {
 	
 	@PostMapping("/add_snack")
 	public ResponseEntity<?> addSnack(@RequestHeader(name = "Authorization") String token, @RequestBody AddSnackRequest request) {
-		/*
-		 * Validate token
-		 */
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		
-		User manager = userRepository.findByUserId(token.substring(7));
+		User manager = userRepository.findById(token.substring(7)).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		if (manager.getRole() != ERole.ROLE_MANAGER)
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
+		
 		Theater theater = theaterRepository.findByManager(manager);
 		Snack snack = new Snack(request.getName(), request.getPrice());
 		snack.setTheater(theater);
@@ -166,12 +170,15 @@ public class ManagerController {
 	}
 	
 	@GetMapping("transaction_history")
-	public List<TheaterTransaction> getTransactionHistory(@RequestHeader(name = "Authorization") String token){
-		/*
-		 * Validate token
-		 */
+	public ResponseEntity<?> getTransactionHistory(@RequestHeader(name = "Authorization") String token){
+
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		
-		User manager = userRepository.findByUserId(token.substring(7));
+		User manager = userRepository.findById(token.substring(7)).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		if (manager.getRole() != ERole.ROLE_MANAGER)
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
+		
 		Theater theater = theaterRepository.findByManager(manager);
 		List<Payment> payments = paymentRepository.findByTheater(theater);
 		List<TheaterTransaction> transactions = new ArrayList<TheaterTransaction>();
@@ -179,7 +186,7 @@ public class ManagerController {
 		payments.forEach(payment -> {
 			double[] total = {0.0};
 			payment.getSnacks().forEach(snack -> {
-				total[0] += snack.getPrice();
+				total[0] += snack.getSnack().getPrice();
 			});
 			
 			total[0] += payment.getShowtimePrice().getPrice() * payment.getTicketCount();
@@ -187,7 +194,7 @@ public class ManagerController {
 			transactions.add(transaction);
 		});
 		
-		return transactions;
+		return new ResponseEntity<List<TheaterTransaction>>(transactions, HttpStatus.OK);
 	}
 	
 }

@@ -1,6 +1,8 @@
 package com.group9.prevue.controller;
 
+import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,8 +14,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.group9.prevue.model.request.PaymentRequest;
 import com.group9.prevue.model.response.MessageResponse;
 import com.group9.prevue.model.*;
 import com.group9.prevue.repository.*;
@@ -31,17 +35,55 @@ public class CustomerController {
 	private PaymentRepository paymentRepository;
 	
 	@Autowired
+	private MovieRepository movieRepository;
+	
+	@Autowired
+	private TheaterRepository theaterRepository;
+	
+	@Autowired
+	private ShowtimeRepository showtimeRepository;
+	
+	@Autowired
+	private SnackRepository snackRepository;
+	
+	@Autowired
 	private PaymentInfoRepository paymentInfoRepository;
 	
 	@Autowired
 	private JwtUtils jwtUtils;
 	
 	@PostMapping("customer_payment")
-	public ResponseEntity<?> submitCustomerPayment(@RequestHeader(name = "Authorization") String token){
+	public ResponseEntity<?> submitCustomerPayment(@RequestHeader(name = "Authorization") String token, @RequestBody PaymentRequest request){
+		
+		if(!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		Payment payment = new Payment();
+		payment.setTheater(theaterRepository.findById(request.getTheaterId()).orElseThrow(() -> new RuntimeException("Error: Theater not found")));
+		payment.setMovie(movieRepository.findById(request.getTheaterId()).orElseThrow(() -> new RuntimeException("Error: Movie not found")));
+		payment.setUser(userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found")));
+		payment.setPaymentDate(new Date());
+		Showtime showtime = showtimeRepository.findById(request.getShowtimeId()).orElseThrow(() -> new RuntimeException("Error: Invalid showtime"));
+		payment.setShowtimePrice(new ShowtimeInfo(showtime.getShowtime(), showtime.getPrice()));
+		payment.setTicketCount(request.getTicketQuantity());
+		List<SnackQuantity> snacks = new ArrayList<>();
+		request.getSnacks().forEach(snack -> {
+			try {
+				Snack newSnack = snackRepository.findById(snack.getSnackId()).orElseThrow(() -> new RuntimeException("Error: Snack not found"));
+				snacks.add(new SnackQuantity(newSnack, snack.getQuantity()));
+			} catch (RuntimeException e) {
+				// Don't add snack, just continue
+			}
+		});
+		
+		payment.setSnacks(snacks);
+		
+		paymentRepository.save(payment);
 		
 		return ResponseEntity.ok(new MessageResponse("Payment successful"));
 	}
 	
+	// For if we decide to save user credit cards
 	@GetMapping("payment_options")
 	public List<PaymentInfo> getPaymentOptions(@RequestHeader(name = "Authorization") String token){
 		
@@ -50,21 +92,20 @@ public class CustomerController {
 		 */
 		
 		String userId = jwtUtils.getUserFromToken(token.substring(7));
-		User user = userRepository.findByUserId(userId);
+		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Error: User not found"));
 		
 		return paymentInfoRepository.findByUser(user);
 	}
 	
 	@GetMapping("payment_history")
-	public List<Payment> getPaymentHistory(@RequestHeader(name = "Authorization") String token){
+	public ResponseEntity<?> getPaymentHistory(@RequestHeader(name = "Authorization") String token){
 		
-		/*
-		 * Validate token
-		 */
+		if(!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		
 		String userId = jwtUtils.getUserFromToken(token.substring(7));
-		User user = userRepository.findByUserId(userId);
+		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Error: User not found"));
 		
-		return paymentRepository.findByUser(user);
+		return new ResponseEntity<List<Payment>>(paymentRepository.findByUser(user), HttpStatus.OK);
 	}
 }

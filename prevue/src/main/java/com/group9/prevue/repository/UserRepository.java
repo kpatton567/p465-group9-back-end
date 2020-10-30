@@ -7,8 +7,7 @@ import java.util.Optional;
 import com.group9.prevue.model.User;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long>{
+public interface UserRepository extends JpaRepository<User, String>{
 
-	Boolean existsByUserId(String userId);
-	User findByUserId(String userId);
+	
 }
