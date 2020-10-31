@@ -32,7 +32,7 @@ public class AdminController {
 	public ResponseEntity<?> addTheater(@RequestBody AddTheaterRequest request){
 		
 		Theater theater = new Theater(request.getName(), request.getCapacity());
-		theater.setManager(userRepository.findByUserId(request.getManagerId()));
+		theater.setManager(userRepository.findById(request.getManagerId()).orElseThrow(() -> new RuntimeException("Error: User not found")));
 		
 		theaterRepository.save(theater);
 		return ResponseEntity.ok(new MessageResponse("Theater added successfully"));
