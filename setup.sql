@@ -1,5 +1,6 @@
 insert into users values('123456789', 1);
 insert into users values('987654321', 1);
+insert into users values('246813579', 0);
 
 insert into movies values(1, 'After Thanos snaps, the remaining Avengers assemble to try to find a way to restore the universe.', 'https://images-na.ssl-images-amazon.com/images/I/81ai6zx6eXL._AC_SL1304_.jpg', 'Avengers: Endgame');
 insert into movies values(2, 'Two young sisters find that all the mirrors in their estranged aunts house are covered or hidden. When one of them happens upon a mirror in the basement, she unknowingly releases a malicious demon.', 'https://media-cache.cinematerial.com/p/500x/jllmn2cv/behind-you-movie-poster.jpg?v=1600320617', 'Behind You');
@@ -14,8 +15,8 @@ insert into movies values(9, 'A reformed hunter living in isolation on a wildlif
 insert into theaters values (1, 100, 'IMax', '123456789');
 insert into theaters values (2, 75, 'AMC', '987654321');
 
-insert into showtimes values (1, 7.99, '2020-04-06T09:00:00.000+00:00', 1, 1, 100);
-insert into showtimes values (2, 8.49, '2020-04-07T09:00:00.000+00:00', 1, 1, 100);
-insert into showtimes values (3, 5.99, '2020-04-07T12:30:00.000+00:00', 1, 1, 100);
-insert into showtimes values (4, 6.49, '2020-04-06T09:00:00.000+00:00', 1, 2, 75);
-insert into showtimes values (2, 8.49, '2020-04-07T10:00:00.000+00:00', 1, 2, 75);
+insert into showtimes values (1, 100, 7.99, '2020-04-06T09:00:00.000+00:00', 1, 1);
+insert into showtimes values (2, 100, 8.49, '2020-04-07T09:00:00.000+00:00', 1, 1);
+insert into showtimes values (3, 100, 5.99, '2020-04-07T12:30:00.000+00:00', 1, 1);
+insert into showtimes values (4, 75, 6.49, '2020-04-06T09:00:00.000+00:00', 1, 2);
+insert into showtimes values (5, 75, 8.49, '2020-04-07T10:00:00.000+00:00', 1, 2);
