@@ -15,14 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.group9.prevue.model.Movie;
-import com.group9.prevue.model.Theater;
-import com.group9.prevue.model.Showtime;
-import com.group9.prevue.model.ShowtimeInfo;
+import com.group9.prevue.model.*;
 import com.group9.prevue.model.response.MovieShowtime;
-import com.group9.prevue.repository.MovieRepository;
-import com.group9.prevue.repository.TheaterRepository;
-import com.group9.prevue.repository.ShowtimeRepository;
+import com.group9.prevue.model.response.SnackResponse;
+import com.group9.prevue.repository.*;
 
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080", "http://localhost:5555"})
 @RestController
@@ -37,6 +33,9 @@ public class HomeController {
 	
 	@Autowired
 	private TheaterRepository theaterRepository;
+	
+	@Autowired
+	private SnackRepository snackRepository;
 	
 	@PostMapping("/theater_showtimes")
 	public List<Showtime> getShowtimesAtTheater(@RequestParam Long theaterId) {
@@ -96,5 +95,17 @@ public class HomeController {
 	@GetMapping("/movie/{movieId}")
 	public Movie getMovie(@PathVariable Long movieId) {
 		return movieRepository.findById(movieId).orElseThrow(() -> new RuntimeException("Error: Movie not found"));
+	}
+	
+	@GetMapping("/snacks/{theaterId}")
+	public List<SnackResponse> getSnacks(@PathVariable Long theaterId) {
+		Theater theater = theaterRepository.findById(theaterId).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
+		List<Snack> snacks = snackRepository.findByTheater(theater);
+		List<SnackResponse> response = new ArrayList<>();
+		snacks.forEach(snack -> {
+			response.add(new SnackResponse(snack.getId(), snack.getTheater().getId(), snack.getName(), snack.getPrice()));
+		});
+		
+		return response;
 	}
 }

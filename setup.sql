@@ -20,3 +20,7 @@ insert into showtimes values (2, 100, 8.49, '2020-04-07T09:00:00.000+00:00', 1, 
 insert into showtimes values (3, 100, 5.99, '2020-04-07T12:30:00.000+00:00', 1, 1);
 insert into showtimes values (4, 75, 6.49, '2020-04-06T09:00:00.000+00:00', 1, 2);
 insert into showtimes values (5, 75, 8.49, '2020-04-07T10:00:00.000+00:00', 1, 2);
+
+insert into snacks values(1, 'Pizza', 7.99, 1);
+insert into snacks values(2, 'Popcorn', 5.99, 1);
+insert into snacks values(3, 'Coke', 2.99, 1);
