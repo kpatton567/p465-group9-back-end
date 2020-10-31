@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 
 import com.group9.prevue.model.request.PaymentRequest;
 import com.group9.prevue.model.response.MessageResponse;
+import com.group9.prevue.model.response.CustomerTransaction;
 import com.group9.prevue.model.*;
 import com.group9.prevue.repository.*;
 import com.group9.prevue.utility.JwtUtils;
@@ -89,19 +90,19 @@ public class CustomerController {
 		return ResponseEntity.ok(new MessageResponse("Payment successful"));
 	}
 	
+	/*
 	// For if we decide to save user credit cards
 	@GetMapping("payment_options")
 	public List<PaymentInfo> getPaymentOptions(@RequestHeader(name = "Authorization") String token){
 		
-		/*
-		 * Validate token
-		 */
+		// Validate token
 		
 		String userId = jwtUtils.getUserFromToken(token.substring(7));
 		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Error: User not found"));
 		
 		return paymentInfoRepository.findByUser(user);
 	}
+	*/
 	
 	@GetMapping("payment_history")
 	public ResponseEntity<?> getPaymentHistory(@RequestHeader(name = "Authorization") String token){
@@ -112,6 +113,22 @@ public class CustomerController {
 		String userId = jwtUtils.getUserFromToken(token.substring(7));
 		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Error: User not found"));
 		
-		return new ResponseEntity<List<Payment>>(paymentRepository.findByUser(user), HttpStatus.OK);
+		List<Payment> payments = paymentRepository.findByUser(user);
+		List<CustomerTransaction> transactions = new ArrayList<CustomerTransaction>();
+		
+		payments.forEach(payment -> {
+			double total[] = {0.0};
+			List<String> snacks = new ArrayList<>();
+			payment.getSnacks().forEach(snack -> {
+				total[0] += snack.getSnack().getPrice() * snack.getQuantity();
+				snacks.add(snack.getSnack().getName());
+			});
+			
+			total[0] += payment.getShowtimePrice().getPrice() * payment.getTicketCount();
+			CustomerTransaction transaction = new CustomerTransaction(payment.getId(), payment.getPaymentDate(), payment.getMovie().getTitle(), payment.getTheater().getName(), snacks, total[0]);
+			transactions.add(transaction);
+		});
+		
+		return new ResponseEntity<List<CustomerTransaction>>(transactions, HttpStatus.OK);
 	}
 }
