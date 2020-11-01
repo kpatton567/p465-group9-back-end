@@ -7,9 +7,9 @@ public class TheaterTransaction {
 	private Long paymentId;
 	private Long theaterId;
 	private Double total;
-	private Date date;
+	private String date;
 	
-	public TheaterTransaction(Long paymentId, Long theaterId, Double total, Date date) {
+	public TheaterTransaction(Long paymentId, Long theaterId, Double total, String date) {
 		this.paymentId = paymentId;
 		this.theaterId = theaterId;
 		this.date = date;
@@ -40,11 +40,11 @@ public class TheaterTransaction {
 		this.total = total;
 	}
 	
-	public Date getDate() {
+	public String getDate() {
 		return date;
 	}
 	
-	public void setDate(Date date) {
+	public void setDate(String date) {
 		this.date = date;
 	}
 	

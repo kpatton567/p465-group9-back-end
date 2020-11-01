@@ -189,7 +189,7 @@ public class ManagerController {
 			});
 			
 			total[0] += payment.getShowtime().getPrice() * payment.getTicketCount();
-			TheaterTransaction transaction = new TheaterTransaction(payment.getId(), payment.getTheater().getId(), total[0], payment.getPaymentDate());
+			TheaterTransaction transaction = new TheaterTransaction(payment.getId(), payment.getTheater().getId(), total[0], ShowtimeInfo.dateString(payment.getPaymentDate()));
 			transactions.add(transaction);
 		});
 		

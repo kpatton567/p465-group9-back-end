@@ -125,7 +125,7 @@ public class CustomerController {
 			});
 			
 			total[0] += payment.getShowtime().getPrice() * payment.getTicketCount();
-			CustomerTransaction transaction = new CustomerTransaction(payment.getId(), payment.getPaymentDate(), payment.getMovie().getTitle(), payment.getTheater().getName(), snacks, total[0]);
+			CustomerTransaction transaction = new CustomerTransaction(payment.getId(), ShowtimeInfo.dateString(payment.getPaymentDate()), payment.getMovie().getTitle(), payment.getTheater().getName(), snacks, total[0]);
 			transactions.add(transaction);
 		});
 		

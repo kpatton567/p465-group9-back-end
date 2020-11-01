@@ -6,13 +6,13 @@ import java.util.List;
 public class CustomerTransaction {
 
 	private Long paymentId;
-	private Date date;
+	private String date;
 	private String movieName;
 	private String theaterName;
 	private List<String> snacks;
 	private Double total;
 	
-	public CustomerTransaction(Long paymentId, Date date, String movieName, String theaterName, List<String> snacks, Double total) {
+	public CustomerTransaction(Long paymentId, String date, String movieName, String theaterName, List<String> snacks, Double total) {
 		this.paymentId = paymentId;
 		this.date = date;
 		this.movieName = movieName;
@@ -27,10 +27,10 @@ public class CustomerTransaction {
 	public void setPaymentId(Long paymentId) {
 		this.paymentId = paymentId;
 	}
-	public Date getDate() {
+	public String getDate() {
 		return date;
 	}
-	public void setDate(Date date) {
+	public void setDate(String date) {
 		this.date = date;
 	}
 	public String getMovieName() {

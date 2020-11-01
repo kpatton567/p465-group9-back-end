@@ -42,7 +42,7 @@ public class ShowtimeInfo {
 		this.showtimeId = showtimeId;
 	}
 	
-	private static String dateString(Date date) {
+	public static String dateString(Date date) {
 		String baseDate = date.toString();
 		System.out.println(baseDate);
 		String month = baseDate.substring(5, 7);
