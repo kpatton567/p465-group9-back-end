@@ -64,17 +64,24 @@ public class HomeController {
 		});
 		
 		showtimeMap.keySet().forEach(theater -> {
-			movieShowtimes.add(new MovieShowtime(theater.getId(), theater.getName(), showtimeMap.get(theater)));
+			movieShowtimes.add(new MovieShowtime(movieId, theater.getId(), theater.getName(), showtimeMap.get(theater)));
 		});
 		
 		return movieShowtimes;
 	}
 	
 	@PostMapping("/movie_theater_showtimes")
-	public List<Showtime> getShowtimesForMovieAtTheater(@RequestParam Long theaterId, @RequestParam Long movieId){
+	public MovieShowtime getShowtimesForMovieAtTheater(@RequestParam Long theaterId, @RequestParam Long movieId){
 		Theater theater = theaterRepository.findById(theaterId).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
 		Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new RuntimeException("Error: Movie not found"));
-		return showtimeRepository.findByTheaterAndMovie(theater, movie);
+		List<Showtime> showtimes = showtimeRepository.findByTheaterAndMovie(theater, movie);
+		List<ShowtimeInfo> showtimeInfos = new ArrayList<>();
+		
+		showtimes.forEach(showtime -> {
+			showtimeInfos.add(new ShowtimeInfo(showtime.getShowtime(), showtime.getPrice()));
+		});
+		
+		return new MovieShowtime(movieId, theaterId, theater.getName(), showtimeInfos);
 	}
 	
 	@GetMapping("/theaters")

@@ -12,7 +12,8 @@ public class MovieShowtime {
 	private String theaterName;
 	private List<ShowtimeInfo> showtimes;
 	
-	public MovieShowtime(Long theaterId, String theaterName, List<ShowtimeInfo> showtimes) {
+	public MovieShowtime(Long movieId, Long theaterId, String theaterName, List<ShowtimeInfo> showtimes) {
+		this.movieId = movieId;
 		this.theaterId = theaterId;
 		this.theaterName = theaterName;
 		this.showtimes = showtimes;
