@@ -188,7 +188,7 @@ public class ManagerController {
 				total[0] += snack.getSnack().getPrice() * snack.getQuantity();
 			});
 			
-			total[0] += payment.getShowtimePrice().getPrice() * payment.getTicketCount();
+			total[0] += payment.getShowtime().getPrice() * payment.getTicketCount();
 			TheaterTransaction transaction = new TheaterTransaction(payment.getId(), payment.getTheater().getId(), total[0], payment.getPaymentDate());
 			transactions.add(transaction);
 		});

@@ -21,8 +21,8 @@ public class Payment {
 	
 	private Date paymentDate;
 	
-	@Embedded
-	private ShowtimeInfo showtimePrice;
+	@ManyToOne
+	private Showtime showtime;
 	private Integer ticketCount;
 	
 	@OneToOne
@@ -89,14 +89,6 @@ public class Payment {
 		this.movie = movie;
 	}
 
-	public ShowtimeInfo getShowtimePrice() {
-		return showtimePrice;
-	}
-
-	public void setShowtimePrice(ShowtimeInfo showtimePrice) {
-		this.showtimePrice = showtimePrice;
-	}
-
 	public Integer getTicketCount() {
 		return ticketCount;
 	}
@@ -111,6 +103,14 @@ public class Payment {
 
 	public void setPaymentDate(Date paymentDate) {
 		this.paymentDate = paymentDate;
+	}
+
+	public Showtime getShowtime() {
+		return showtime;
+	}
+
+	public void setShowtime(Showtime showtime) {
+		this.showtime = showtime;
 	}
 
 	

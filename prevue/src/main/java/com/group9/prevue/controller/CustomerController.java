@@ -68,7 +68,7 @@ public class CustomerController {
 		payment.setMovie(movieRepository.findById(request.getTheaterId()).orElseThrow(() -> new RuntimeException("Error: Movie not found")));
 		payment.setUser(userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found")));
 		payment.setPaymentDate(new Date());
-		payment.setShowtimePrice(new ShowtimeInfo(showtime.getId(), showtime.getShowtime(), showtime.getPrice()));
+		payment.setShowtime(showtime);
 		payment.setTicketCount(request.getTicketQuantity());
 		List<SnackQuantity> snacks = new ArrayList<>();
 		request.getSnacks().forEach(snack -> {
@@ -124,7 +124,7 @@ public class CustomerController {
 				snacks.add(snack.getSnack().getName());
 			});
 			
-			total[0] += payment.getShowtimePrice().getPrice() * payment.getTicketCount();
+			total[0] += payment.getShowtime().getPrice() * payment.getTicketCount();
 			CustomerTransaction transaction = new CustomerTransaction(payment.getId(), payment.getPaymentDate(), payment.getMovie().getTitle(), payment.getTheater().getName(), snacks, total[0]);
 			transactions.add(transaction);
 		});
