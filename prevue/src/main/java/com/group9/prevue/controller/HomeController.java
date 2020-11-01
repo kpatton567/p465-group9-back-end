@@ -54,11 +54,11 @@ public class HomeController {
 		showtimes.forEach(showtime -> {
 			if(showtimeMap.containsKey(showtime.getTheater())) {
 				List<ShowtimeInfo> showtimeInfo = showtimeMap.get(showtime.getTheater());
-				showtimeInfo.add(new ShowtimeInfo(showtime.getShowtime(), showtime.getPrice()));
+				showtimeInfo.add(new ShowtimeInfo(showtime.getId(), showtime.getShowtime(), showtime.getPrice()));
 				showtimeMap.put(showtime.getTheater(), showtimeInfo);
 			} else {
 				List<ShowtimeInfo> showtimeInfo = new ArrayList<>();
-				showtimeInfo.add(new ShowtimeInfo(showtime.getShowtime(), showtime.getPrice()));
+				showtimeInfo.add(new ShowtimeInfo(showtime.getId(), showtime.getShowtime(), showtime.getPrice()));
 				showtimeMap.put(showtime.getTheater(), showtimeInfo);
 			}
 		});
@@ -78,7 +78,7 @@ public class HomeController {
 		List<ShowtimeInfo> showtimeInfos = new ArrayList<>();
 		
 		showtimes.forEach(showtime -> {
-			showtimeInfos.add(new ShowtimeInfo(showtime.getShowtime(), showtime.getPrice()));
+			showtimeInfos.add(new ShowtimeInfo(showtime.getId(), showtime.getShowtime(), showtime.getPrice()));
 		});
 		
 		return new MovieShowtime(movieId, theaterId, theater.getName(), showtimeInfos);
