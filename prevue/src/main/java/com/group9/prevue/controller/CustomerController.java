@@ -24,7 +24,7 @@ import com.group9.prevue.model.*;
 import com.group9.prevue.repository.*;
 import com.group9.prevue.utility.JwtUtils;
 
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080", "http://localhost:5555"})
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080", "http://localhost:5555", "https://prevuemovies.herokuapp.com"})
 @RestController
 @RequestMapping("/api/customer")
 public class CustomerController {

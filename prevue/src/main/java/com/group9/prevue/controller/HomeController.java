@@ -20,7 +20,7 @@ import com.group9.prevue.model.response.MovieShowtime;
 import com.group9.prevue.model.response.SnackResponse;
 import com.group9.prevue.repository.*;
 
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080", "http://localhost:5555"})
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080", "http://localhost:5555", "https://prevuemovies.herokuapp.com"})
 @RestController
 @RequestMapping("/api/home")
 public class HomeController {
