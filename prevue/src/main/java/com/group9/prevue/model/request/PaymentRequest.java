@@ -1,6 +1,6 @@
 package com.group9.prevue.model.request;
 
-import java.util.List;
+import java.util.Map;
 
 
 public class PaymentRequest {
@@ -14,7 +14,7 @@ public class PaymentRequest {
 	private String name;
 	private String zip;
 	private Integer ticketQuantity;
-	private List<SnackIdQuantity> snacks;
+	private Map<String, Integer> snacks;
 	
 	public Long getTheaterId() {
 		return theaterId;
@@ -70,10 +70,10 @@ public class PaymentRequest {
 	public void setTicketQuantity(Integer ticketQuantity) {
 		this.ticketQuantity = ticketQuantity;
 	}
-	public List<SnackIdQuantity> getSnacks() {
+	public Map<String, Integer> getSnacks() {
 		return snacks;
 	}
-	public void setSnacks(List<SnackIdQuantity> snacks) {
+	public void setSnacks(Map<String, Integer> snacks) {
 		this.snacks = snacks;
 	}
 
