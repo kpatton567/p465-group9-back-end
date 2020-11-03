@@ -71,14 +71,18 @@ public class CustomerController {
 		payment.setShowtime(showtime);
 		payment.setTicketCount(request.getTicketQuantity());
 		List<SnackQuantity> snacks = new ArrayList<>();
-		request.getSnacks().keySet().forEach(snackId -> {
+		
+		for (int i = 0; i < request.getSnacks().size(); i++) {
+			if (request.getSnacks().get(i) == null || request.getSnacks().get(i) == 0) {
+				continue;
+			}
 			try {
-				Snack newSnack = snackRepository.findById(Long.parseLong(snackId)).orElseThrow(() -> new RuntimeException("Error: Snack not found"));
-				snacks.add(new SnackQuantity(newSnack, request.getSnacks().get(snackId)));
+				Snack newSnack = snackRepository.findById((long) i).orElseThrow(() -> new RuntimeException("Error: Snack not found"));
+				snacks.add(new SnackQuantity(newSnack, request.getSnacks().get(i)));
 			} catch (RuntimeException e) {
 				// Don't add snack, just continue
 			}
-		});
+		}
 		
 		payment.setSnacks(snacks);
 		
