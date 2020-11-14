@@ -56,12 +56,16 @@ public class CustomerController {
 	@PostMapping("customer_payment")
 	public ResponseEntity<?> submitCustomerPayment(@RequestHeader(name = "Authorization") String token, @RequestBody PaymentRequest request){
 		
+		System.out.println(token);
+		
 		if(!jwtUtils.validateToken(token))
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		
 		Showtime showtime = showtimeRepository.findById(request.getShowtimeId()).orElseThrow(() -> new RuntimeException("Error: Invalid showtime"));
 		if (showtime.getCapacity() - request.getTicketQuantity() < 0)
 			return ResponseEntity.badRequest().body(new MessageResponse("Showtime does not have enough capacity"));
+		
+		System.out.println("Showtime: " + showtime);
 		
 		Payment payment = new Payment();
 		payment.setTheater(theaterRepository.findById(request.getTheaterId()).orElseThrow(() -> new RuntimeException("Error: Theater not found")));

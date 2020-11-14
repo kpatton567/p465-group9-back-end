@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.HashSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.group9.prevue.model.*;
 import com.group9.prevue.model.request.*;
@@ -165,6 +165,24 @@ public class ManagerController {
 		snack.setTheater(theater);
 		snackRepository.save(snack);
 		
+		return ResponseEntity.ok(new MessageResponse("Snack added successfully"));
+	}
+	
+	@PostMapping("/delete_snack")
+	public ResponseEntity<?> deleteSnack(@RequestHeader(name = "Authorization") String token, @RequestParam Long snackId) {
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		if (manager.getRole() != ERole.ROLE_MANAGER)
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
+		
+		Snack snack = snackRepository.findById(snackId).orElseThrow(() -> new RuntimeException("Error: Snack not found"));
+		if (!(manager.getUserId().equals(snack.getTheater().getManager().getUserId()))){
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
+		}
+		
+		snackRepository.delete(snack);
 		return ResponseEntity.ok(new MessageResponse("Snack added successfully"));
 	}
 	

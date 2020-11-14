@@ -44,7 +44,6 @@ public class ShowtimeInfo {
 	
 	public static String dateString(Date date) {
 		String baseDate = date.toString();
-		System.out.println(baseDate);
 		String month = baseDate.substring(5, 7);
 		String day = baseDate.substring(8, 10);
 		String year = baseDate.substring(2, 4);

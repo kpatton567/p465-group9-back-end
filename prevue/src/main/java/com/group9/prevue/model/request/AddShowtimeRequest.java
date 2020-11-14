@@ -5,21 +5,12 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class AddShowtimeRequest {
 
-	private Long theaterId;
 	private Long movieId;
 	
 	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	private Date showtime;
 	
 	private Double price;
-
-	public Long getTheaterId() {
-		return theaterId;
-	}
-
-	public void setTheaterId(Long theaterId) {
-		this.theaterId = theaterId;
-	}
 
 	public Long getMovieId() {
 		return movieId;
