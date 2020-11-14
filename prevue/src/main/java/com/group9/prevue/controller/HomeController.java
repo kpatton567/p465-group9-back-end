@@ -103,6 +103,9 @@ public class HomeController {
 		if (filter.getTheaterId() != null)
 			theater = theaterRepository.findById(filter.getTheaterId()).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
 		
+		if (filter.getDate() == null && (filter.getLowPrice() == null || !filter.getLowPrice()) && (filter.getMidPrice() == null || !filter.getMidPrice()) && (filter.getHighPrice() == null || !filter.getHighPrice()))
+			return new ResponseEntity<List<Movie>>(movieRepository.findAll(), HttpStatus.OK);
+		
 		try {
 			if (filter.getDate() != null) {
 				Date begin = sdf.parse(filter.getDate());
