@@ -4,7 +4,6 @@ public class AddSnackRequest {
 
 	private String name;
 	private Double price;
-	private Long theaterId;
 	
 	public AddSnackRequest() {}
 	
@@ -27,13 +26,5 @@ public class AddSnackRequest {
 
 	public void setPrice(Double price) {
 		this.price = price;
-	}
-
-	public Long getTheaterId() {
-		return theaterId;
-	}
-
-	public void setTheaterId(Long theaterId) {
-		this.theaterId = theaterId;
 	}
 }

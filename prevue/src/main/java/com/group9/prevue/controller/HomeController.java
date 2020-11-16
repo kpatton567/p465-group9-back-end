@@ -96,6 +96,15 @@ public class HomeController {
 	@PostMapping("/search")
 	public ResponseEntity<?> search(@RequestBody SearchFilter filter) {
 		
+		if (filter.getLowPrice() == null)
+			filter.setLowPrice(false);
+		
+		if (filter.getMidPrice() == null)
+			filter.setMidPrice(false);
+		
+		if (filter.getHighPrice() == null)
+			filter.setHighPrice(false);
+		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		Calendar calendar = Calendar.getInstance();
 		List<Showtime> showtimeResults = new ArrayList<>();
@@ -103,7 +112,7 @@ public class HomeController {
 		if (filter.getTheaterId() != null)
 			theater = theaterRepository.findById(filter.getTheaterId()).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
 		
-		if (theater == null && filter.getDate() == null && (filter.getLowPrice() == null || !filter.getLowPrice()) && (filter.getMidPrice() == null || !filter.getMidPrice()) && (filter.getHighPrice() == null || !filter.getHighPrice()))
+		if (theater == null && filter.getDate() == null && !filter.getLowPrice() && !filter.getMidPrice() && !filter.getHighPrice())
 			return new ResponseEntity<List<Movie>>(movieRepository.findAll(), HttpStatus.OK);
 		
 		try {
@@ -114,15 +123,14 @@ public class HomeController {
 				Date end = sdf.parse(sdf.format(calendar.getTime()));
 				List<Showtime> showtimesOnDate = theater != null ? showtimeRepository.findByShowtimeBetweenAndShowtimeNotAndTheater(begin,  end,  end,  theater) : showtimeRepository.findByShowtimeBetweenAndShowtimeNot(begin, end, end);
 				
-				if (filter.getLowPrice() == null)
-					filter.setLowPrice(false);
-				if (filter.getMidPrice() == null)
-					filter.setMidPrice(false);
-				if (filter.getHighPrice() == null)
-					filter.setHighPrice(false);
-				
-				if (!filter.getLowPrice() && !filter.getMidPrice() && !filter.getHighPrice())
-					return new ResponseEntity<List<Showtime>>(showtimesOnDate, HttpStatus.OK);
+				if (!filter.getLowPrice() && !filter.getMidPrice() && !filter.getHighPrice()) {
+					Set<Movie> movieResults = new HashSet<>();
+					showtimesOnDate.forEach(showtime -> {
+						movieResults.add(showtime.getMovie());
+					});
+					return new ResponseEntity<Set<Movie>>(movieResults, HttpStatus.OK);
+				}
+					
 				
 				if (filter.getLowPrice()) {
 					showtimesOnDate.forEach(showtime -> {
@@ -162,7 +170,7 @@ public class HomeController {
 		List<Showtime> allShowtimes = theater != null ? showtimeRepository.findByTheater(theater) : showtimeRepository.findAll();
 		
 		if (!filter.getLowPrice() && !filter.getMidPrice() && !filter.getHighPrice())
-			return new ResponseEntity<List<Showtime>>(allShowtimes, HttpStatus.OK);
+			return new ResponseEntity<List<Movie>>(movieRepository.findAll(), HttpStatus.OK);
 		
 		if (filter.getLowPrice()) {
 			allShowtimes.forEach(showtime -> {
