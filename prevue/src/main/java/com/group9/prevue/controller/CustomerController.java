@@ -139,4 +139,16 @@ public class CustomerController {
 		
 		return new ResponseEntity<List<CustomerTransaction>>(transactions, HttpStatus.OK);
 	}
+	
+	@GetMapping("theater_manager/{theaterId}")
+	public ResponseEntity<?> getTheaterManager(@RequestHeader(name = "Authorization") String token, @PathVariable Long theaterId) {
+		
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		Theater theater = theaterRepository.findById(theaterId).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
+		User manager = theater.getManager();
+		
+		return new ResponseEntity<User>(manager, HttpStatus.OK);
+	}
 }
