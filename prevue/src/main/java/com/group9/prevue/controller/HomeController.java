@@ -27,6 +27,7 @@ import com.group9.prevue.model.*;
 import com.group9.prevue.model.request.SearchFilter;
 import com.group9.prevue.model.response.MovieShowtime;
 import com.group9.prevue.model.response.SnackResponse;
+import com.group9.prevue.model.response.StarRatingResponse;
 import com.group9.prevue.repository.*;
 
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080", "http://localhost:5555", "https://prevuemovies.herokuapp.com"})
@@ -45,6 +46,9 @@ public class HomeController {
 	
 	@Autowired
 	private SnackRepository snackRepository;
+	
+	@Autowired
+	private ReviewRepository reviewRepository;
 	
 	@PostMapping("/theater_showtimes")
 	public List<Showtime> getShowtimesAtTheater(@RequestParam Long theaterId) {
@@ -229,6 +233,36 @@ public class HomeController {
 		List<SnackResponse> response = new ArrayList<>();
 		snacks.forEach(snack -> {
 			response.add(new SnackResponse(snack.getId(), snack.getTheater().getId(), snack.getName(), snack.getPrice()));
+		});
+		
+		return response;
+	}
+	
+	@GetMapping("/star_rating/{theaterId}")
+	public StarRatingResponse getTheaterStarRating(@PathVariable Long theaterId) {
+		Theater theater = theaterRepository.findById(theaterId).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
+		List<Review> reviews = reviewRepository.findByTheater(theater);
+		
+		if (reviews.size() == 0)
+			return new StarRatingResponse(0.0, 0);
+		
+		double[] totalStars = {0.0};
+		reviews.forEach(review -> {
+			totalStars[0] += review.getStars();
+		});
+		
+		double averageStars = totalStars[0] / reviews.size();
+		return new StarRatingResponse(averageStars, reviews.size());
+	}
+	
+	@GetMapping("reviews/{theaterId}")
+	public List<SimpleReview> getTheaterReviews(@PathVariable Long theaterId) {
+		Theater theater = theaterRepository.findById(theaterId).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
+		List<Review> reviews = reviewRepository.findByTheater(theater);
+		List<SimpleReview> response = new ArrayList<>();
+		
+		reviews.forEach(review -> {
+			response.add(new SimpleReview(review.getTheater().getId(), review.getStars(), review.getReview()));
 		});
 		
 		return response;
