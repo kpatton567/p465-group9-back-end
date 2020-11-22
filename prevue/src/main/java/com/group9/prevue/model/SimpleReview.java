@@ -2,22 +2,22 @@ package com.group9.prevue.model;
 
 public class SimpleReview {
 
-	private Long theaterId;
+	private Long movieId;
 	private Integer stars;
 	private String review;
 	
-	public SimpleReview(Long theaterId, Integer stars, String review) {
-		this.theaterId = theaterId;
+	public SimpleReview(Long movieId, Integer stars, String review) {
+		this.movieId = movieId;
 		this.stars = stars;
 		this.review = review;
 	}
 
-	public Long getTheaterId() {
-		return theaterId;
+	public Long getMovieId() {
+		return movieId;
 	}
 
-	public void setTheaterId(Long theaterId) {
-		this.theaterId = theaterId;
+	public void setMovieId(Long movieId) {
+		this.movieId = movieId;
 	}
 
 	public Integer getStars() {

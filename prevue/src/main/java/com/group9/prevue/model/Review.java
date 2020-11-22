@@ -19,15 +19,15 @@ public class Review {
 	private User user;
 	
 	@ManyToOne
-	private Theater theater;
+	private Movie movie;
 	
 	public Review() {}
 	
-	public Review(Integer stars, String review, User user, Theater theater) {
+	public Review(Integer stars, String review, User user, Movie movie) {
 		this.stars = stars;
 		this.review = review;
 		this.user = user;
-		this.theater = theater;
+		this.movie = movie;
 	}
 
 	public Long getId() {
@@ -62,12 +62,12 @@ public class Review {
 		this.user = user;
 	}
 
-	public Theater getTheater() {
-		return theater;
+	public Movie getMovie() {
+		return movie;
 	}
 
-	public void setTheater(Theater theater) {
-		this.theater = theater;
+	public void setMovie(Movie movie) {
+		this.movie = movie;
 	}
 	
 }

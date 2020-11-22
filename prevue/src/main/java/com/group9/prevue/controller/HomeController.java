@@ -238,10 +238,10 @@ public class HomeController {
 		return response;
 	}
 	
-	@GetMapping("/star_rating/{theaterId}")
-	public StarRatingResponse getTheaterStarRating(@PathVariable Long theaterId) {
-		Theater theater = theaterRepository.findById(theaterId).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
-		List<Review> reviews = reviewRepository.findByTheater(theater);
+	@GetMapping("/star_rating/{movieId}")
+	public StarRatingResponse getTheaterStarRating(@PathVariable Long movieId) {
+		Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
+		List<Review> reviews = reviewRepository.findByMovie(movie);
 		
 		if (reviews.size() == 0)
 			return new StarRatingResponse(0.0, 0);
@@ -255,14 +255,14 @@ public class HomeController {
 		return new StarRatingResponse(averageStars, reviews.size());
 	}
 	
-	@GetMapping("reviews/{theaterId}")
-	public List<SimpleReview> getTheaterReviews(@PathVariable Long theaterId) {
-		Theater theater = theaterRepository.findById(theaterId).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
-		List<Review> reviews = reviewRepository.findByTheater(theater);
+	@GetMapping("reviews/{movieId}")
+	public List<SimpleReview> getTheaterReviews(@PathVariable Long movieId) {
+		Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new RuntimeException("Error: Movie not found"));
+		List<Review> reviews = reviewRepository.findByMovie(movie);
 		List<SimpleReview> response = new ArrayList<>();
 		
 		reviews.forEach(review -> {
-			response.add(new SimpleReview(review.getTheater().getId(), review.getStars(), review.getReview()));
+			response.add(new SimpleReview(review.getMovie().getId(), review.getStars(), review.getReview()));
 		});
 		
 		return response;
