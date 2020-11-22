@@ -51,12 +51,13 @@ public class CustomerController {
 	private PaymentInfoRepository paymentInfoRepository;
 	
 	@Autowired
+	private ReviewRepository reviewRepository;
+	
+	@Autowired
 	private JwtUtils jwtUtils;
 	
 	@PostMapping("customer_payment")
 	public ResponseEntity<?> submitCustomerPayment(@RequestHeader(name = "Authorization") String token, @RequestBody PaymentRequest request){
-		
-		System.out.println(token);
 		
 		if(!jwtUtils.validateToken(token))
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
@@ -96,6 +97,20 @@ public class CustomerController {
 		showtimeRepository.save(showtime);
 		
 		return ResponseEntity.ok(new MessageResponse("Payment successful"));
+	}
+	
+	@PostMapping("post_review")
+	public ResponseEntity<?> postReview(@RequestHeader(name = "Authorization") String token, @RequestBody SimpleReview request) {
+		if(!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		User user = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		Theater theater = theaterRepository.findById(request.getTheaterId()).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
+		
+		Review review = new Review(request.getStars(), request.getReview(), user, theater);
+		reviewRepository.save(review);
+		
+		return ResponseEntity.ok(new MessageResponse("Review posted"));
 	}
 	
 	/*
