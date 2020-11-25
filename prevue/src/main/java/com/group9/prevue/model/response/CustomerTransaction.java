@@ -9,14 +9,16 @@ public class CustomerTransaction {
 	private String date;
 	private String movieName;
 	private String theaterName;
+	private String last4Digits;
 	private List<String> snacks;
 	private Double total;
 	
-	public CustomerTransaction(Long paymentId, String date, String movieName, String theaterName, List<String> snacks, Double total) {
+	public CustomerTransaction(Long paymentId, String date, String movieName, String theaterName, String last4Digits, List<String> snacks, Double total) {
 		this.paymentId = paymentId;
 		this.date = date;
 		this.movieName = movieName;
 		this.theaterName = theaterName;
+		this.last4Digits = last4Digits;
 		this.snacks = snacks;
 		this.total = total;
 	}
@@ -56,6 +58,14 @@ public class CustomerTransaction {
 	}
 	public void setSnacks(List<String> snacks) {
 		this.snacks = snacks;
+	}
+
+	public String getLast4Digits() {
+		return last4Digits;
+	}
+
+	public void setLast4Digits(String last4Digits) {
+		this.last4Digits = last4Digits;
 	}
 	
 }

@@ -14,6 +14,7 @@ public class PaymentRequest {
 	private String cvv;
 	private String name;
 	private String zip;
+	private String couponCode;
 	private Integer ticketQuantity;
 	private List<Integer> snacks;
 	
@@ -76,6 +77,12 @@ public class PaymentRequest {
 	}
 	public void setSnacks(List<Integer> snacks) {
 		this.snacks = snacks;
+	}
+	public String getCouponCode() {
+		return couponCode;
+	}
+	public void setCouponCode(String couponCode) {
+		this.couponCode = couponCode;
 	}
 
 }

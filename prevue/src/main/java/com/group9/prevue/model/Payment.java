@@ -28,6 +28,9 @@ public class Payment {
 	@OneToOne
 	private PaymentInfo paymentInfo;
 	
+	@ManyToOne
+	private Coupon coupon;
+	
 	@ElementCollection
 	private List<SnackQuantity> snacks;
 	//private Double total;
@@ -111,6 +114,14 @@ public class Payment {
 
 	public void setShowtime(Showtime showtime) {
 		this.showtime = showtime;
+	}
+
+	public Coupon getCoupon() {
+		return coupon;
+	}
+
+	public void setCoupon(Coupon coupon) {
+		this.coupon = coupon;
 	}
 
 	

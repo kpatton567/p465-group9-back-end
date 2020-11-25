@@ -207,6 +207,8 @@ public class ManagerController {
 			});
 			
 			total[0] += payment.getShowtime().getPrice() * payment.getTicketCount();
+			if (payment.getCoupon() != null)
+				total[0] *= (100 - payment.getCoupon().getPercentOff()) / 100.0;
 			TheaterTransaction transaction = new TheaterTransaction(payment.getId(), payment.getTheater().getId(), total[0], ShowtimeInfo.dateString(payment.getPaymentDate()));
 			transactions.add(transaction);
 		});

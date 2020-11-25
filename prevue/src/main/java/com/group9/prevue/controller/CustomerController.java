@@ -54,6 +54,9 @@ public class CustomerController {
 	private ReviewRepository reviewRepository;
 	
 	@Autowired
+	private CouponRepository couponRepository;
+	
+	@Autowired
 	private JwtUtils jwtUtils;
 	
 	@PostMapping("customer_payment")
@@ -66,15 +69,28 @@ public class CustomerController {
 		if (showtime.getCapacity() - request.getTicketQuantity() < 0)
 			return ResponseEntity.badRequest().body(new MessageResponse("Showtime does not have enough capacity"));
 		
-		System.out.println("Showtime: " + showtime);
+		User user = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
 		
 		Payment payment = new Payment();
 		payment.setTheater(theaterRepository.findById(request.getTheaterId()).orElseThrow(() -> new RuntimeException("Error: Theater not found")));
 		payment.setMovie(movieRepository.findById(request.getTheaterId()).orElseThrow(() -> new RuntimeException("Error: Movie not found")));
-		payment.setUser(userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found")));
+		payment.setUser(user);
 		payment.setPaymentDate(new Date());
 		payment.setShowtime(showtime);
 		payment.setTicketCount(request.getTicketQuantity());
+		
+		try {
+			Coupon coupon = couponRepository.findByCodeAndExpirationDateGreaterThan(request.getCouponCode(), new Date()).orElseThrow(() -> new RuntimeException("Error: Coupon not found"));
+			List<Coupon> userUsedCoupons = user.getUsedCoupons();
+			if (userUsedCoupons.contains(coupon))
+				throw new RuntimeException("Error: Coupon already used");
+			payment.setCoupon(coupon);
+			userUsedCoupons.add(coupon);
+			user.setUsedCoupons(userUsedCoupons);
+		} catch (RuntimeException e) {
+			payment.setCoupon(null);
+		}
+		
 		List<SnackQuantity> snacks = new ArrayList<>();
 		
 		for (int i = 0; i < request.getSnacks().size(); i++) {
@@ -148,7 +164,9 @@ public class CustomerController {
 			});
 			
 			total[0] += payment.getShowtime().getPrice() * payment.getTicketCount();
-			CustomerTransaction transaction = new CustomerTransaction(payment.getId(), ShowtimeInfo.dateString(payment.getPaymentDate()), payment.getMovie().getTitle(), payment.getTheater().getName(), snacks, total[0]);
+			if (payment.getCoupon() != null)
+				total[0] *= (100 - payment.getCoupon().getPercentOff()) / 100.0;
+			CustomerTransaction transaction = new CustomerTransaction(payment.getId(), ShowtimeInfo.dateString(payment.getPaymentDate()), payment.getMovie().getTitle(), payment.getTheater().getName(), payment.getPaymentInfo().getNumber().substring(12), snacks, total[0]);
 			transactions.add(transaction);
 		});
 		
@@ -165,5 +183,40 @@ public class CustomerController {
 		User manager = theater.getManager();
 		
 		return new ResponseEntity<User>(manager, HttpStatus.OK);
+	}
+	
+	@GetMapping("rewards")
+	public ResponseEntity<?> getRewards(@RequestHeader(name = "Authorization") String token) {
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		List<Coupon> allValidCoupons = couponRepository.findByExpirationDateGreaterThan(new Date());
+		User user = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		
+		List<Coupon> response = new ArrayList<>();
+		allValidCoupons.forEach(coupon -> {
+			if (!(user.getUsedCoupons().contains(coupon)))
+				response.add(coupon);
+		});
+		
+		return new ResponseEntity<List<Coupon>>(response, HttpStatus.OK);
+	}
+	
+	@GetMapping("coupon/{couponCode}")
+	public ResponseEntity<?> getCoupon(@RequestHeader(name = "Authorization") String token, @PathVariable String couponCode) {
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		User user = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		
+		try {
+			Coupon coupon = couponRepository.findByCodeAndExpirationDateGreaterThan(couponCode, new Date()).orElseThrow(() -> new RuntimeException("Error: Coupon not found"));
+			if (!(user.getUsedCoupons().contains(coupon)))
+				return new ResponseEntity<Coupon>(coupon, HttpStatus.OK);
+			else
+				return ResponseEntity.badRequest().body(new MessageResponse("Coupon already used"));
+		} catch (RuntimeException e) {
+			return ResponseEntity.badRequest().body(new MessageResponse("Coupon not found or is expired"));
+		}
 	}
 }

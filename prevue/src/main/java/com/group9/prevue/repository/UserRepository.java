@@ -8,6 +8,5 @@ import com.group9.prevue.model.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, String>{
-
 	
 }

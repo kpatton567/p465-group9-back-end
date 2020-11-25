@@ -1,9 +1,8 @@
 package com.group9.prevue.model;
 
 import javax.persistence.*;
-import java.util.Set;
-import java.util.HashSet;
-
+import java.util.List;
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "users", uniqueConstraints = { @UniqueConstraint(columnNames = "userId") } )
@@ -18,11 +17,15 @@ public class User {
 	
 	private ERole role;
 	
+	@ElementCollection
+	private List<Coupon> usedCoupons;
+	
 	public User() {}
 	
 	public User(String userId, ERole role) {
 		this.userId = userId;
 		this.role = role;
+		this.usedCoupons = new ArrayList<>();
 	}
 
 	/*public Long getId() {
@@ -47,5 +50,13 @@ public class User {
 
 	public void setRole(ERole role) {
 		this.role = role;
+	}
+
+	public List<Coupon> getUsedCoupons() {
+		return usedCoupons;
+	}
+
+	public void setUsedCoupons(List<Coupon> usedCoupons) {
+		this.usedCoupons = usedCoupons;
 	}
 }
