@@ -100,9 +100,9 @@ public class HomeController {
 	@PostMapping("/search")
 	public ResponseEntity<?> search(@RequestBody SearchFilter filter) {
 		
+		List<Showtime> showtimeResults = new ArrayList<>();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		Calendar calendar = Calendar.getInstance();
-		List<Showtime> showtimeResults = new ArrayList<>();
 		Theater theater = null;
 		if (filter.getTheaterId() != null)
 			theater = theaterRepository.findById(filter.getTheaterId()).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
@@ -118,34 +118,28 @@ public class HomeController {
 				Date end = sdf.parse(sdf.format(calendar.getTime()));
 				List<Showtime> showtimesOnDate = theater != null ? showtimeRepository.findByShowtimeBetweenAndShowtimeNotAndTheater(begin,  end,  end,  theater) : showtimeRepository.findByShowtimeBetweenAndShowtimeNot(begin, end, end);
 				
-				if (filter.getPrice() == null) {
-					Set<Movie> movieResults = new HashSet<>();
-					showtimesOnDate.forEach(showtime -> {
-						movieResults.add(showtime.getMovie());
-					});
-					return new ResponseEntity<Set<Movie>>(movieResults, HttpStatus.OK);
-				}
-					
+				if (filter.getPrice() == null) 
+					showtimeResults = showtimesOnDate;
 				
 				if (filter.getPrice() == EPriceRange.LOW) {
-					showtimesOnDate.forEach(showtime -> {
-						if (showtime.getPrice() <= SearchFilter.LOW_PRICE)
-							showtimeResults.add(showtime);
-					});
+					for (int i = 0; i < showtimesOnDate.size(); i++) {
+						if (showtimesOnDate.get(i).getPrice() <= SearchFilter.LOW_PRICE)
+							showtimeResults.add(showtimesOnDate.get(i));
+					}
 				}
 				
 				if (filter.getPrice() == EPriceRange.MID) {
-					showtimesOnDate.forEach(showtime -> {
-						if (showtime.getPrice() > SearchFilter.LOW_PRICE && showtime.getPrice() <= SearchFilter.MID_PRICE)
-							showtimeResults.add(showtime);
-					});
+					for (int i = 0; i < showtimesOnDate.size(); i++) {
+						if (showtimesOnDate.get(i).getPrice() > SearchFilter.LOW_PRICE && showtimesOnDate.get(i).getPrice() <= SearchFilter.MID_PRICE)
+							showtimeResults.add(showtimesOnDate.get(i));
+					}
 				}
 				
 				if (filter.getPrice() == EPriceRange.HIGH) {
-					showtimesOnDate.forEach(showtime -> {
-						if (showtime.getPrice() > SearchFilter.MID_PRICE)
-							showtimeResults.add(showtime);
-					});
+					for (int i = 0; i < showtimesOnDate.size(); i++) {
+						if (showtimesOnDate.get(i).getPrice() > SearchFilter.MID_PRICE)
+							showtimeResults.add(showtimesOnDate.get(i));
+					}
 				}
 				
 				Set<Movie> movieResults = new HashSet<>();
@@ -162,28 +156,29 @@ public class HomeController {
 		
 		List<Showtime> allShowtimes = theater != null ? showtimeRepository.findByTheater(theater) : showtimeRepository.findAll();
 		
+		
 		if (filter.getPrice() == null) 
 			showtimeResults = allShowtimes;
 		
 		if (filter.getPrice() == EPriceRange.LOW) {
-			allShowtimes.forEach(showtime -> {
-				if (showtime.getPrice() <= SearchFilter.LOW_PRICE)
-					showtimeResults.add(showtime);
-			});
+			for (int i = 0; i < allShowtimes.size(); i++) {
+				if (allShowtimes.get(i).getPrice() <= SearchFilter.LOW_PRICE)
+					showtimeResults.add(allShowtimes.get(i));
+			}
 		}
 		
 		if (filter.getPrice() == EPriceRange.MID) {
-			allShowtimes.forEach(showtime -> {
-				if (showtime.getPrice() > SearchFilter.LOW_PRICE && showtime.getPrice() <= SearchFilter.MID_PRICE)
-					showtimeResults.add(showtime);
-			});
+			for (int i = 0; i < allShowtimes.size(); i++) {
+				if (allShowtimes.get(i).getPrice() > SearchFilter.LOW_PRICE && allShowtimes.get(i).getPrice() <= SearchFilter.MID_PRICE)
+					showtimeResults.add(allShowtimes.get(i));
+			}
 		}
 		
 		if (filter.getPrice() == EPriceRange.HIGH) {
-			allShowtimes.forEach(showtime -> {
-				if (showtime.getPrice() > SearchFilter.MID_PRICE)
-					showtimeResults.add(showtime);
-			});
+			for (int i = 0; i < allShowtimes.size(); i++) {
+				if (allShowtimes.get(i).getPrice() > SearchFilter.MID_PRICE)
+					showtimeResults.add(allShowtimes.get(i));
+			}
 		}
 		
 		Set<Movie> movieResults = new HashSet<>();
