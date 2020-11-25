@@ -2,6 +2,7 @@ package com.group9.prevue.model.request;
 
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.group9.prevue.model.EPriceRange;
 
 public class SearchFilter {
 
@@ -11,16 +12,12 @@ public class SearchFilter {
 	private Long theaterId;
 	private String date;
 	
-	private Boolean lowPrice;
-	private Boolean midPrice;
-	private Boolean highPrice;
+	private EPriceRange price;
 	
-	public SearchFilter(Long theaterId, String date, Boolean lowPrice, Boolean midPrice, Boolean highPrice) {
+	public SearchFilter(Long theaterId, String date, EPriceRange price) {
 		this.theaterId = theaterId;
 		this.date = date;
-		this.lowPrice = lowPrice;
-		this.midPrice = midPrice;
-		this.highPrice = highPrice;
+		this.price = price;
 	}
 
 	public String getDate() {
@@ -31,28 +28,12 @@ public class SearchFilter {
 		this.date = date;
 	}
 
-	public Boolean getLowPrice() {
-		return lowPrice;
+	public EPriceRange getPrice() {
+		return this.price;
 	}
-
-	public void setLowPrice(Boolean lowPrice) {
-		this.lowPrice = lowPrice;
-	}
-
-	public Boolean getMidPrice() {
-		return midPrice;
-	}
-
-	public void setMidPrice(Boolean midPrice) {
-		this.midPrice = midPrice;
-	}
-
-	public Boolean getHighPrice() {
-		return highPrice;
-	}
-
-	public void setHighPrice(Boolean highPrice) {
-		this.highPrice = highPrice;
+	
+	public void setPrice(EPriceRange price) {
+		this.price = price;
 	}
 
 	public Long getTheaterId() {
