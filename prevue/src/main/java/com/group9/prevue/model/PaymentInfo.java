@@ -4,11 +4,12 @@ import javax.persistence.*;
 
 import com.group9.prevue.model.User;
 
-@Entity
-@Table(name = "payment_info")
+//@Entity
+//@Table(name = "payment_info")
+@Embeddable
 public class PaymentInfo {
 
-	@Id
+	//@Id
 	private String number;
 	private String expiration;
 	private String cvv;
@@ -16,8 +17,8 @@ public class PaymentInfo {
 	private String name;
 	private String zip;
 	
-	@ManyToOne
-	private User user;
+	//@ManyToOne
+	//private User user;
 	
 	public PaymentInfo() {}
 	
@@ -69,11 +70,11 @@ public class PaymentInfo {
 		this.zip = zip;
 	}
 
-	public User getUser() {
+	/*public User getUser() {
 		return user;
 	}
 
 	public void setUser(User user) {
 		this.user = user;
-	}
+	}*/
 }

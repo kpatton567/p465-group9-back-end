@@ -47,8 +47,8 @@ public class CustomerController {
 	@Autowired
 	private SnackRepository snackRepository;
 	
-	@Autowired
-	private PaymentInfoRepository paymentInfoRepository;
+	//@Autowired
+	//private PaymentInfoRepository paymentInfoRepository;
 	
 	@Autowired
 	private ReviewRepository reviewRepository;

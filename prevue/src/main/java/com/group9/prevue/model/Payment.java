@@ -25,7 +25,8 @@ public class Payment {
 	private Showtime showtime;
 	private Integer ticketCount;
 	
-	@OneToOne
+	//@OneToOne
+	@Embedded
 	private PaymentInfo paymentInfo;
 	
 	@ManyToOne
