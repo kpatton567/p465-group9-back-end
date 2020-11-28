@@ -79,6 +79,9 @@ public class CustomerController {
 		payment.setShowtime(showtime);
 		payment.setTicketCount(request.getTicketQuantity());
 		
+		PaymentInfo paymentInfo = new PaymentInfo(request.getCreditCardNumber(), request.getCardExpiration(), request.getCvv(), request.getName(), request.getZip());
+		payment.setPaymentInfo(paymentInfo);
+		
 		try {
 			Coupon coupon = couponRepository.findByCodeAndExpirationDateGreaterThan(request.getCouponCode(), new Date()).orElseThrow(() -> new RuntimeException("Error: Coupon not found"));
 			List<Coupon> userUsedCoupons = user.getUsedCoupons();
