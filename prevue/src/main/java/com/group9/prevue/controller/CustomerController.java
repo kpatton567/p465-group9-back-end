@@ -170,14 +170,6 @@ public class CustomerController {
 			if (payment.getCoupon() != null)
 				total[0] *= (100 - payment.getCoupon().getPercentOff()) / 100.0;
 			
-			System.out.println(payment.getId());
-			System.out.println(ShowtimeInfo.dateString(payment.getPaymentDate()));
-			System.out.println(payment.getMovie().getTitle());
-			System.out.println(payment.getTheater().getName());
-			System.out.println(payment.getPaymentInfo().getNumber().substring(12));
-			System.out.println(snacks);
-			System.out.println(total[0]);
-			
 			CustomerTransaction transaction = new CustomerTransaction(payment.getId(), ShowtimeInfo.dateString(payment.getPaymentDate()), payment.getMovie().getTitle(), payment.getTheater().getName(), payment.getPaymentInfo().getNumber().substring(12), snacks, total[0]);
 			transactions.add(transaction);
 		});
