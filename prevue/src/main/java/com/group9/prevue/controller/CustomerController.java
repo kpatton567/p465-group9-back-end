@@ -170,7 +170,7 @@ public class CustomerController {
 			if (payment.getCoupon() != null)
 				total[0] *= (100 - payment.getCoupon().getPercentOff()) / 100.0;
 			
-			CustomerTransaction transaction = new CustomerTransaction(payment.getId(), ShowtimeInfo.dateString(payment.getPaymentDate()), payment.getMovie().getTitle(), payment.getTheater().getName(), payment.getPaymentInfo().getNumber().substring(12), snacks, total[0]);
+			CustomerTransaction transaction = new CustomerTransaction(payment.getId(), ShowtimeInfo.dateString(payment.getPaymentDate()), payment.getMovie().getId(), payment.getMovie().getTitle(), payment.getTheater().getId(), payment.getTheater().getName(), payment.getPaymentInfo().getNumber().substring(12), snacks, total[0]);
 			transactions.add(transaction);
 		});
 		

@@ -31,7 +31,7 @@ public class AdminController {
 	@PostMapping("add_theater")
 	public ResponseEntity<?> addTheater(@RequestBody AddTheaterRequest request){
 		
-		Theater theater = new Theater(request.getName(), request.getCapacity());
+		Theater theater = new Theater(request.getName(), request.getCapacity(), request.getAddress(), request.getLatitude(), request.getLongitude());
 		theater.setManager(userRepository.findById(request.getManagerId()).orElseThrow(() -> new RuntimeException("Error: User not found")));
 		
 		theaterRepository.save(theater);

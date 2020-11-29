@@ -7,16 +7,20 @@ public class CustomerTransaction {
 
 	private Long paymentId;
 	private String date;
+	private Long movieId;
 	private String movieName;
+	private Long theaterId;
 	private String theaterName;
 	private String last4Digits;
 	private List<String> snacks;
 	private Double total;
 	
-	public CustomerTransaction(Long paymentId, String date, String movieName, String theaterName, String last4Digits, List<String> snacks, Double total) {
+	public CustomerTransaction(Long paymentId, String date, Long movieId, String movieName, Long theaterId, String theaterName, String last4Digits, List<String> snacks, Double total) {
 		this.paymentId = paymentId;
 		this.date = date;
+		this.movieId = movieId;
 		this.movieName = movieName;
+		this.theaterId = theaterId;
 		this.theaterName = theaterName;
 		this.last4Digits = last4Digits;
 		this.snacks = snacks;
@@ -66,6 +70,22 @@ public class CustomerTransaction {
 
 	public void setLast4Digits(String last4Digits) {
 		this.last4Digits = last4Digits;
+	}
+
+	public Long getMovieId() {
+		return movieId;
+	}
+
+	public void setMovieId(Long movieId) {
+		this.movieId = movieId;
+	}
+
+	public Long getTheaterId() {
+		return theaterId;
+	}
+
+	public void setTheaterId(Long theaterId) {
+		this.theaterId = theaterId;
 	}
 	
 }

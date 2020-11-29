@@ -16,11 +16,18 @@ public class Theater {
 	
 	private Integer capacity;
 	
+	private String address;
+	private Double latitude;
+	private Double longitude;
+	
 	public Theater() { }
 	
-	public Theater(String name, Integer capacity) {
+	public Theater(String name, Integer capacity, String address, Double latitude, Double longitude) {
 		this.name = name;
 		this.capacity = capacity;
+		this.address = address;
+		this.latitude = latitude;
+		this.longitude = longitude;
 	}
 
 	public Long getId() {
@@ -53,6 +60,30 @@ public class Theater {
 
 	public void setCapacity(Integer capacity) {
 		this.capacity = capacity;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public Double getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(Double latitude) {
+		this.latitude = latitude;
+	}
+
+	public Double getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(Double longitude) {
+		this.longitude = longitude;
 	}
 	
 	
