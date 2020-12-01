@@ -126,7 +126,7 @@ public class CustomerController {
 		User user = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
 		Movie movie = movieRepository.findById(request.getMovieId()).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
 		
-		Review review = new Review(request.getStars(), request.getReview(), user, movie);
+		Review review = new Review(request.getStars(), request.getHeadline(), request.getReview(), user, movie);
 		reviewRepository.save(review);
 		
 		return ResponseEntity.ok(new MessageResponse("Review posted"));

@@ -4,11 +4,13 @@ public class SimpleReview {
 
 	private Long movieId;
 	private Integer stars;
+	private String headline;
 	private String review;
 	
-	public SimpleReview(Long movieId, Integer stars, String review) {
+	public SimpleReview(Long movieId, Integer stars, String headline, String review) {
 		this.movieId = movieId;
 		this.stars = stars;
+		this.headline = headline;
 		this.review = review;
 	}
 
@@ -34,6 +36,14 @@ public class SimpleReview {
 
 	public void setReview(String review) {
 		this.review = review;
+	}
+
+	public String getHeadline() {
+		return headline;
+	}
+
+	public void setHeadline(String headline) {
+		this.headline = headline;
 	}
 	
 }

@@ -246,7 +246,7 @@ public class HomeController {
 		List<SimpleReview> response = new ArrayList<>();
 		
 		reviews.forEach(review -> {
-			response.add(new SimpleReview(review.getMovie().getId(), review.getStars(), review.getReview()));
+			response.add(new SimpleReview(review.getMovie().getId(), review.getStars(), review.getHeadline(), review.getReview()));
 		});
 		
 		return response;

@@ -12,6 +12,7 @@ public class Review {
 	
 	private Integer stars;
 	
+	private String headline;
 	@Column(length = 1000)
 	private String review;
 	
@@ -23,8 +24,9 @@ public class Review {
 	
 	public Review() {}
 	
-	public Review(Integer stars, String review, User user, Movie movie) {
+	public Review(Integer stars, String headline, String review, User user, Movie movie) {
 		this.stars = stars;
+		this.headline = headline;
 		this.review = review;
 		this.user = user;
 		this.movie = movie;
@@ -68,6 +70,14 @@ public class Review {
 
 	public void setMovie(Movie movie) {
 		this.movie = movie;
+	}
+
+	public String getHeadline() {
+		return headline;
+	}
+
+	public void setHeadline(String headline) {
+		this.headline = headline;
 	}
 	
 }
