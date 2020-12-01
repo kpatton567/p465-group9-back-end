@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.group9.prevue.model.request.PaymentRequest;
+import com.group9.prevue.model.request.EditProfileRequest;
 import com.group9.prevue.model.response.MessageResponse;
 import com.group9.prevue.model.response.CustomerTransaction;
 import com.group9.prevue.model.*;
@@ -55,6 +56,9 @@ public class CustomerController {
 	
 	@Autowired
 	private CouponRepository couponRepository;
+	
+	@Autowired
+	private ProfileRepository profileRepository;
 	
 	@Autowired
 	private JwtUtils jwtUtils;
@@ -130,6 +134,34 @@ public class CustomerController {
 		reviewRepository.save(review);
 		
 		return ResponseEntity.ok(new MessageResponse("Review posted"));
+	}
+	
+	@PostMapping("edit_profile")
+	public ResponseEntity<?> postReview(@RequestHeader(name = "Authorization") String token, @RequestBody EditProfileRequest request) {
+		if(!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		User user = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		
+		try {
+			UserProfile profile = profileRepository.findById(user.getUserId()).orElseThrow(() -> new RuntimeException("Profile not found"));
+			
+			if (request.getFirstName() != null)
+				profile.setFirstName(request.getFirstName());
+			if (request.getLastName() != null)
+				profile.setLastName(request.getLastName());
+			if (request.getEmail() != null)
+				profile.setEmail(request.getEmail());
+			if (request.getMobileNumber() != null)
+				profile.setMobileNumber(request.getMobileNumber());
+			
+			profileRepository.save(profile);
+		} catch (RuntimeException e) {
+			UserProfile profile = new UserProfile(user.getUserId(), request.getFirstName(), request.getLastName(), request.getEmail(), request.getMobileNumber());
+			profileRepository.save(profile);
+		}
+		
+		return ResponseEntity.ok(new MessageResponse("Profile information saved"));
 	}
 	
 	/*
@@ -221,6 +253,22 @@ public class CustomerController {
 				return ResponseEntity.badRequest().body(new MessageResponse("Coupon already used"));
 		} catch (RuntimeException e) {
 			return ResponseEntity.badRequest().body(new MessageResponse("Coupon not found or is expired"));
+		}
+	}
+	
+	@GetMapping("profile")
+	public ResponseEntity<?> getProfileInfo(@RequestHeader(name = "Authorization") String token) {
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		User user = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		
+		try {
+			UserProfile profile = profileRepository.findById(user.getUserId()).orElseThrow(() -> new RuntimeException("Profile not found"));
+			return new ResponseEntity<UserProfile>(profile, HttpStatus.OK);
+		} catch (RuntimeException e) {
+			UserProfile profile = new UserProfile(user.getUserId(), null, null, null, null);
+			return new ResponseEntity<UserProfile>(profile, HttpStatus.OK);
 		}
 	}
 }

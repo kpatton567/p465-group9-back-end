@@ -251,4 +251,10 @@ public class HomeController {
 		
 		return response;
 	}
+	
+	@GetMapping("theater_address/{theaterId}")
+	public String getTheaterAddress(@PathVariable Long theaterId) {
+		Theater theater = theaterRepository.findById(theaterId).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
+		return theater.getAddress();
+	}
 }
