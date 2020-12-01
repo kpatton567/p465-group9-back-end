@@ -28,6 +28,7 @@ import com.group9.prevue.model.request.SearchFilter;
 import com.group9.prevue.model.response.MovieShowtime;
 import com.group9.prevue.model.response.SnackResponse;
 import com.group9.prevue.model.response.StarRatingResponse;
+import com.group9.prevue.model.response.TheaterLocation;
 import com.group9.prevue.repository.*;
 
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080", "http://localhost:5555", "https://prevuemovies.herokuapp.com"})
@@ -253,8 +254,8 @@ public class HomeController {
 	}
 	
 	@GetMapping("theater_address/{theaterId}")
-	public String getTheaterAddress(@PathVariable Long theaterId) {
+	public TheaterLocation getTheaterAddress(@PathVariable Long theaterId) {
 		Theater theater = theaterRepository.findById(theaterId).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
-		return theater.getAddress();
+		return new TheaterLocation(theater.getAddress(), theater.getLatitude(), theater.getLongitude());
 	}
 }
