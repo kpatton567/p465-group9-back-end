@@ -93,7 +93,7 @@ public class CustomerController {
 		payment.setPaymentInfo(paymentInfo);
 		
 		try {
-			Coupon coupon = couponRepository.findByCodeAndExpirationDateGreaterThan(request.getCouponCode(), new Date()).orElseThrow(() -> new RuntimeException("Error: Coupon not found"));
+			Coupon coupon = couponRepository.findByCodeAndExpirationDateGreaterThan(request.getCouponCode().toUpperCase(), new Date()).orElseThrow(() -> new RuntimeException("Error: Coupon not found"));
 			List<Coupon> userUsedCoupons = user.getUsedCoupons();
 			if (userUsedCoupons.contains(coupon))
 				throw new RuntimeException("Error: Coupon already used");
@@ -261,7 +261,7 @@ public class CustomerController {
 				total[0] *= (100 - payment.getCoupon().getPercentOff()) / 100.0;
 			
 			BigDecimal bd = new BigDecimal(Double.toString(total[0]));
-			bd.setScale(2, RoundingMode.HALF_UP);
+			bd = bd.setScale(2, RoundingMode.HALF_UP);
 			total[0] = bd.doubleValue();
 			
 			CustomerTransaction transaction = new CustomerTransaction(payment.getId(), ShowtimeInfo.dateString(payment.getPaymentDate()), payment.getMovie().getId(), payment.getMovie().getTitle(), payment.getTheater().getId(), payment.getTheater().getName(), payment.getPaymentInfo().getNumber().substring(12), snacks, total[0], payment.getStatus());
@@ -308,7 +308,7 @@ public class CustomerController {
 		User user = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
 		
 		try {
-			Coupon coupon = couponRepository.findByCodeAndExpirationDateGreaterThan(couponCode, new Date()).orElseThrow(() -> new RuntimeException("Error: Coupon not found"));
+			Coupon coupon = couponRepository.findByCodeAndExpirationDateGreaterThan(couponCode.toUpperCase(), new Date()).orElseThrow(() -> new RuntimeException("Error: Coupon not found"));
 			if (!(user.getUsedCoupons().contains(coupon)))
 				return new ResponseEntity<Coupon>(coupon, HttpStatus.OK);
 			else

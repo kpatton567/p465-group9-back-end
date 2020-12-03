@@ -64,7 +64,7 @@ public class ManagerController {
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		
 		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
-		if (manager.getRole() != ERole.ROLE_MANAGER)
+		if (manager.getRole() != ERole.ROLE_MANAGER && manager.getRole() != ERole.ROLE_ADMIN)
 			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
 		
 		Movie movie = movieRepository.findById(request.getMovieId()).orElseThrow(() -> new RuntimeException("Error: Movie not found"));
@@ -86,7 +86,7 @@ public class ManagerController {
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		
 		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
-		if (manager.getRole() != ERole.ROLE_MANAGER)
+		if (manager.getRole() != ERole.ROLE_MANAGER && manager.getRole() != ERole.ROLE_ADMIN)
 			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
 		
 		Movie movie = new Movie(request.getTitle(), request.getDescription(), request.getPosterLink());
@@ -102,7 +102,7 @@ public class ManagerController {
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		
 		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
-		if (manager.getRole() != ERole.ROLE_MANAGER)
+		if (manager.getRole() != ERole.ROLE_MANAGER && manager.getRole() != ERole.ROLE_ADMIN)
 			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
 		
 		Theater theater = theaterRepository.findByManager(manager).orElseThrow(() -> new RuntimeException("Error: No theater with this manager"));
@@ -119,7 +119,7 @@ public class ManagerController {
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		
 		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
-		if (manager.getRole() != ERole.ROLE_MANAGER)
+		if (manager.getRole() != ERole.ROLE_MANAGER && manager.getRole() != ERole.ROLE_ADMIN)
 			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
 		
 		Snack snack = snackRepository.findById(snackId).orElseThrow(() -> new RuntimeException("Error: Snack not found"));
@@ -137,7 +137,7 @@ public class ManagerController {
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		
 		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
-		if (manager.getRole() != ERole.ROLE_MANAGER)
+		if (manager.getRole() != ERole.ROLE_MANAGER && manager.getRole() != ERole.ROLE_ADMIN)
 			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
 		
 		Payment payment = paymentRepository.findById(paymentNum).orElseThrow(() -> new RuntimeException("Error: Payment not found"));
@@ -162,7 +162,7 @@ public class ManagerController {
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		
 		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
-		if (manager.getRole() != ERole.ROLE_MANAGER)
+		if (manager.getRole() != ERole.ROLE_MANAGER && manager.getRole() != ERole.ROLE_ADMIN)
 			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
 		
 		Theater theater = theaterRepository.findByManager(manager).orElseThrow(() -> new RuntimeException("Error: No theater with this manager"));
@@ -180,7 +180,7 @@ public class ManagerController {
 				total[0] *= (100 - payment.getCoupon().getPercentOff()) / 100.0;
 			
 			BigDecimal bd = new BigDecimal(Double.toString(total[0]));
-			bd.setScale(2, RoundingMode.HALF_UP);
+			bd = bd.setScale(2, RoundingMode.HALF_UP);
 			total[0] = bd.doubleValue();
 			
 			TheaterTransaction transaction = new TheaterTransaction(payment.getId(), payment.getTheater().getId(), total[0], ShowtimeInfo.dateString(payment.getPaymentDate()));
@@ -196,7 +196,7 @@ public class ManagerController {
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		
 		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
-		if (manager.getRole() != ERole.ROLE_MANAGER)
+		if (manager.getRole() != ERole.ROLE_MANAGER && manager.getRole() != ERole.ROLE_ADMIN)
 			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
 		
 		Theater theater = theaterRepository.findByManager(manager).orElseThrow(() -> new RuntimeException("Error: No theater with this manager"));
@@ -221,7 +221,7 @@ public class ManagerController {
 					total[0] *= (100 - payment.getCoupon().getPercentOff()) / 100.0;
 				
 				BigDecimal bd = new BigDecimal(Double.toString(total[0]));
-				bd.setScale(2, RoundingMode.HALF_UP);
+				bd = bd.setScale(2, RoundingMode.HALF_UP);
 				total[0] = bd.doubleValue();
 				
 				TheaterTransaction transaction = new TheaterTransaction(payment.getId(), payment.getTheater().getId(), total[0], ShowtimeInfo.dateString(payment.getPaymentDate()));
@@ -239,7 +239,7 @@ public class ManagerController {
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		
 		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
-		if (manager.getRole() != ERole.ROLE_MANAGER)
+		if (manager.getRole() != ERole.ROLE_MANAGER && manager.getRole() != ERole.ROLE_ADMIN)
 			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
 		
 		Theater theater = theaterRepository.findByManager(manager).orElseThrow(() -> new RuntimeException("Manager does not have a theater"));
@@ -267,7 +267,7 @@ public class ManagerController {
 				total[0] *= (100 - payment.getCoupon().getPercentOff()) / 100.0;
 			
 			BigDecimal bd = new BigDecimal(Double.toString(total[0]));
-			bd.setScale(2, RoundingMode.HALF_UP);
+			bd = bd.setScale(2, RoundingMode.HALF_UP);
 			total[0] = bd.doubleValue();
 			
 			if (monthlyTotals.containsKey(paymentMonth)) {
@@ -286,7 +286,7 @@ public class ManagerController {
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		
 		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
-		if (manager.getRole() != ERole.ROLE_MANAGER)
+		if (manager.getRole() != ERole.ROLE_MANAGER && manager.getRole() != ERole.ROLE_ADMIN)
 			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
 		
 		Theater theater = theaterRepository.findByManager(manager).orElseThrow(() -> new RuntimeException("Manager does not have a theater"));
@@ -314,7 +314,7 @@ public class ManagerController {
 				
 				double couponSavings = total[0] * (payment.getCoupon().getPercentOff() / 100.0);
 				BigDecimal bd = new BigDecimal(Double.toString(couponSavings));
-				bd.setScale(2, RoundingMode.HALF_UP);
+				bd = bd.setScale(2, RoundingMode.HALF_UP);
 				
 				if (monthlyTotals.containsKey(paymentMonth)) {
 					monthlyTotals.put(paymentMonth, monthlyTotals.get(paymentMonth) + bd.doubleValue());
@@ -331,7 +331,7 @@ public class ManagerController {
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		
 		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
-		if (manager.getRole() != ERole.ROLE_MANAGER)
+		if (manager.getRole() != ERole.ROLE_MANAGER && manager.getRole() != ERole.ROLE_ADMIN)
 			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
 		
 		Theater theater = theaterRepository.findByManager(manager).orElseThrow(() -> new RuntimeException("Manager does not have a theater"));
@@ -366,7 +366,7 @@ public class ManagerController {
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		
 		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
-		if (manager.getRole() != ERole.ROLE_MANAGER)
+		if (manager.getRole() != ERole.ROLE_MANAGER && manager.getRole() != ERole.ROLE_ADMIN)
 			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
 		
 		Theater theater = theaterRepository.findByManager(manager).orElseThrow(() -> new RuntimeException("Manager does not have a theater"));
@@ -384,7 +384,7 @@ public class ManagerController {
 		payments.forEach(payment -> {
 			Movie movie = payment.getMovie();
 			
-			if (movieTotals.containsKey(movie)) {
+			if (movieTotals.containsKey(movie.getTitle())) {
 				movieTotals.put(movie.getTitle(), movieTotals.get(movie.getTitle()) + (payment.getShowtime().getPrice() * payment.getTicketCount()));
 			} else {
 				movieTotals.put(movie.getTitle(), payment.getShowtime().getPrice() * payment.getTicketCount());
