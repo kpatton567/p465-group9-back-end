@@ -20,6 +20,7 @@ public class Payment {
 	private User user;
 	
 	private Date paymentDate;
+	private EPaymentStatus status;
 	
 	@ManyToOne
 	private Showtime showtime;
@@ -125,5 +126,12 @@ public class Payment {
 		this.coupon = coupon;
 	}
 
-	
+	public EPaymentStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(EPaymentStatus status) {
+		this.status = status;
+	}
+
 }

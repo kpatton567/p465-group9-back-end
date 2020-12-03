@@ -1,6 +1,8 @@
 package com.group9.prevue.model;
 
 import javax.persistence.*;
+import java.util.Date;
+import java.util.Set;
 
 @Entity
 @Table(name = "profiles")
@@ -13,15 +15,18 @@ public class UserProfile {
 	private String lastName;
 	private String email;
 	private String mobileNumber;
+	private Date birthday;
+	private Set<EGenre> genres;
 	
 	public UserProfile() {}
 	
-	public UserProfile(String userId, String firstName, String lastName, String email, String mobileNumber) {
+	public UserProfile(String userId, String firstName, String lastName, String email, String mobileNumber, Date birthday) {
 		this.userId = userId;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.email = email;
 		this.mobileNumber = mobileNumber;
+		this.birthday = birthday;
 	}
 
 	public String getUserId() {
@@ -62,6 +67,22 @@ public class UserProfile {
 
 	public void setMobileNumber(String mobileNumber) {
 		this.mobileNumber = mobileNumber;
+	}
+
+	public Date getBirthday() {
+		return birthday;
+	}
+
+	public void setBirthday(Date birthday) {
+		this.birthday = birthday;
+	}
+
+	public Set<EGenre> getGenres() {
+		return genres;
+	}
+
+	public void setGenres(Set<EGenre> genres) {
+		this.genres = genres;
 	}
 	
 	

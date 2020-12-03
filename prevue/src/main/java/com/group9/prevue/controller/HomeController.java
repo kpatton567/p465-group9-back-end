@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -30,6 +31,9 @@ import com.group9.prevue.model.response.SnackResponse;
 import com.group9.prevue.model.response.StarRatingResponse;
 import com.group9.prevue.model.response.TheaterLocation;
 import com.group9.prevue.repository.*;
+import com.group9.prevue.utility.MovieTitleComparator;
+import com.group9.prevue.utility.ShowtimeInfoComparator;
+import com.group9.prevue.utility.TheaterNameComparator;
 
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080", "http://localhost:5555", "https://prevuemovies.herokuapp.com"})
 @RestController
@@ -60,7 +64,7 @@ public class HomeController {
 	@PostMapping("/movie_showtimes")
 	public List<MovieShowtime> getMovieShowtimes(@RequestParam Long movieId) {
 		Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new RuntimeException("Error: Movie not found"));
-		List<Showtime> showtimes = showtimeRepository.findByMovie(movie);
+		List<Showtime> showtimes = showtimeRepository.findByMovieAndShowtimeGreaterThan(movie, new Date());
 		List<MovieShowtime> movieShowtimes = new ArrayList<MovieShowtime>();
 		
 		Map<Theater, List<ShowtimeInfo>> showtimeMap = new HashMap<>();
@@ -81,6 +85,9 @@ public class HomeController {
 			movieShowtimes.add(new MovieShowtime(movieId, theater.getId(), theater.getName(), showtimeMap.get(theater)));
 		});
 		
+		movieShowtimes.forEach(movieShowtime -> {
+			Collections.sort(movieShowtime.getShowtimes(), new ShowtimeInfoComparator());
+		});
 		return movieShowtimes;
 	}
 	
@@ -193,7 +200,9 @@ public class HomeController {
 	
 	@GetMapping("/theaters")
 	public List<Theater> getAllTheaters(){
-		return theaterRepository.findAll();
+		List<Theater> theaters = theaterRepository.findAll();
+		Collections.sort(theaters, new TheaterNameComparator());
+		return theaters;
 	}
 	
 	@GetMapping("/theater/{theaterId}")
@@ -203,7 +212,9 @@ public class HomeController {
 	
 	@GetMapping("/movies")
 	public List<Movie> getAllMovies(){
-		return movieRepository.findAll();
+		List<Movie> movies = movieRepository.findAll();
+		Collections.sort(movies, new MovieTitleComparator());
+		return movies;
 	}
 	
 	@GetMapping("/movie/{movieId}")

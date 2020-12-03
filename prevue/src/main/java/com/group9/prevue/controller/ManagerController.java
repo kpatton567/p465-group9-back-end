@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
+import java.text.DecimalFormat;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import com.group9.prevue.model.*;
 import com.group9.prevue.model.request.*;
@@ -40,9 +42,6 @@ public class ManagerController {
 	private TheaterRepository theaterRepository;
 	
 	@Autowired
-	private GenreRepository genreRepository;
-	
-	@Autowired
 	private SnackRepository snackRepository;
 	
 	@Autowired
@@ -53,6 +52,8 @@ public class ManagerController {
 	
 	@Autowired
 	private JwtUtils jwtUtils;
+	
+	private DecimalFormat moneyFormat = new DecimalFormat("0.00");
 	
 	@PostMapping("/add_showtime")
 	public ResponseEntity<?> addShowtime(@RequestHeader(name = "Authorization") String token, @RequestBody AddShowtimeRequest request){
@@ -88,65 +89,7 @@ public class ManagerController {
 		
 		Movie movie = new Movie(request.getTitle(), request.getDescription(), request.getPosterLink());
 		
-		Set<String> strGenres = request.getGenre();
-		Set<Genre> genres = new HashSet<>();
-		
-		if (strGenres != null) {
-			strGenres.forEach(genre -> {
-				switch (genre) {
-				case "action":
-					Genre actionGenre = genreRepository.findByGenre(EGenre.GENRE_ACTION).orElseThrow(() -> new RuntimeException("Error: Genre not found"));
-					genres.add(actionGenre);
-					break;
-				case "adventure":
-					Genre adventureGenre = genreRepository.findByGenre(EGenre.GENRE_ADVENTURE).orElseThrow(() -> new RuntimeException("Error: Genre not found"));
-					genres.add(adventureGenre);
-					break;
-				case "thriller":
-					Genre thrillerGenre = genreRepository.findByGenre(EGenre.GENRE_THRILLER).orElseThrow(() -> new RuntimeException("Error: Genre not found"));
-					genres.add(thrillerGenre);
-					break;
-				case "horror":
-					Genre horrorGenre = genreRepository.findByGenre(EGenre.GENRE_HORROR).orElseThrow(() -> new RuntimeException("Error: Genre not found"));
-					genres.add(horrorGenre);
-					break;
-				case "psychological":
-					Genre psychGenre = genreRepository.findByGenre(EGenre.GENRE_PSYCHOLOGICAL).orElseThrow(() -> new RuntimeException("Error: Genre not found"));
-					genres.add(psychGenre);
-					break;
-				case "nonfiction":
-					Genre nonfictionGenre = genreRepository.findByGenre(EGenre.GENRE_NONFICTION).orElseThrow(() -> new RuntimeException("Error: Genre not found"));
-					genres.add(nonfictionGenre);
-					break;
-				case "biopic":
-					Genre biopicGenre = genreRepository.findByGenre(EGenre.GENRE_BIOPIC).orElseThrow(() -> new RuntimeException("Error: Genre not found"));
-					genres.add(biopicGenre);
-					break;
-				case "comedy":
-					Genre comedyGenre = genreRepository.findByGenre(EGenre.GENRE_COMEDY).orElseThrow(() -> new RuntimeException("Error: Genre not found"));
-					genres.add(comedyGenre);
-					break;
-				case "crime":
-					Genre crimeGenre = genreRepository.findByGenre(EGenre.GENRE_CRIME).orElseThrow(() -> new RuntimeException("Error: Genre not found"));
-					genres.add(crimeGenre);
-					break;
-				case "drama":
-					Genre dramaGenre = genreRepository.findByGenre(EGenre.GENRE_DRAMA).orElseThrow(() -> new RuntimeException("Error: Genre not found"));
-					genres.add(dramaGenre);
-					break;
-				case "romance":
-					Genre romanceGenre = genreRepository.findByGenre(EGenre.GENRE_ROMANCE).orElseThrow(() -> new RuntimeException("Error: Genre not found"));
-					genres.add(romanceGenre);
-					break;
-				case "scifi":
-					Genre scifiGenre = genreRepository.findByGenre(EGenre.GENRE_SCIFI).orElseThrow(() -> new RuntimeException("Error: Genre not found"));
-					genres.add(scifiGenre);
-					break;
-				}
-			});
-		}
-		
-		movie.setGenres(genres);
+		movie.setGenres(request.getGenre());
 		movieRepository.save(movie);
 		return ResponseEntity.ok(new MessageResponse("Movie added successfully"));
 	}
@@ -186,6 +129,30 @@ public class ManagerController {
 		return ResponseEntity.ok(new MessageResponse("Snack added successfully"));
 	}
 	
+	@PostMapping("refund_response/")
+	public ResponseEntity<?> respondToRefundRequest(@RequestHeader(name = "Authorization") String token, @RequestParam Long paymentNum, @RequestParam Boolean accepted) {
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		if (manager.getRole() != ERole.ROLE_MANAGER)
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
+		
+		Payment payment = paymentRepository.findById(paymentNum).orElseThrow(() -> new RuntimeException("Error: Payment not found"));
+		Theater theater = theaterRepository.findByManager(manager).orElseThrow(() -> new RuntimeException("Error: No theater with this manager"));
+		if (theater.getId() != payment.getTheater().getId())
+			return new ResponseEntity<String>("Manager does not control this theater", HttpStatus.FORBIDDEN);
+		
+		if (accepted) {
+			payment.setStatus(EPaymentStatus.REFUNDED);
+		} else {
+			payment.setStatus(EPaymentStatus.FINAL);
+		}
+		
+		paymentRepository.save(payment);
+		return new ResponseEntity<String>("Response sent", HttpStatus.OK);
+	}
+	
 	@GetMapping("transaction_history")
 	public ResponseEntity<?> getTransactionHistory(@RequestHeader(name = "Authorization") String token){
 
@@ -216,4 +183,41 @@ public class ManagerController {
 		return new ResponseEntity<List<TheaterTransaction>>(transactions, HttpStatus.OK);
 	}
 	
+	@GetMapping("refund_requests")
+	public ResponseEntity<?> getRefundRequests(@RequestHeader(name = "Authorization") String token) {
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		if (manager.getRole() != ERole.ROLE_MANAGER)
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
+		
+		Theater theater = theaterRepository.findByManager(manager).orElseThrow(() -> new RuntimeException("Error: No theater with this manager"));
+		
+		List<Payment> payments = paymentRepository.findByTheaterAndStatus(theater, EPaymentStatus.REQUESTED);
+		List<TheaterTransaction> transactions = new ArrayList<TheaterTransaction>();
+		
+		int i = 0;
+		while (i < payments.size()) {
+			Payment payment = payments.get(i);
+			if (payment.getShowtime().getShowtime().compareTo(new Date()) <= 0) {
+				payment.setStatus(EPaymentStatus.FINAL);
+				paymentRepository.save(payment);
+				payments.remove(i);
+			} else {
+				double[] total = {0.0};
+				payment.getSnacks().forEach(snack -> {
+					total[0] += snack.getSnack().getPrice() * snack.getQuantity();
+				});
+				total[0] += payment.getShowtime().getPrice() * payment.getTicketCount();
+				if (payment.getCoupon() != null)
+					total[0] *= (100 - payment.getCoupon().getPercentOff()) / 100.0;
+				TheaterTransaction transaction = new TheaterTransaction(payment.getId(), payment.getTheater().getId(), new Double(Long.parseLong(moneyFormat.format(total[0]))), ShowtimeInfo.dateString(payment.getPaymentDate()));
+				transactions.add(transaction);
+				i++;
+			}
+		}
+		
+		return new ResponseEntity<List<TheaterTransaction>>(transactions, HttpStatus.OK);
+	}
 }

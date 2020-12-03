@@ -3,6 +3,8 @@ package com.group9.prevue.controller;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -82,6 +84,7 @@ public class CustomerController {
 		payment.setPaymentDate(new Date());
 		payment.setShowtime(showtime);
 		payment.setTicketCount(request.getTicketQuantity());
+		payment.setStatus(EPaymentStatus.REFUNDABLE);
 		
 		PaymentInfo paymentInfo = new PaymentInfo(request.getCreditCardNumber(), request.getCardExpiration(), request.getCvv(), request.getName(), request.getZip());
 		payment.setPaymentInfo(paymentInfo);
@@ -122,6 +125,29 @@ public class CustomerController {
 		return ResponseEntity.ok(new MessageResponse("Payment successful"));
 	}
 	
+	@PostMapping("request_refund/{paymentNum}")
+	public ResponseEntity<?> requestRefund(@RequestHeader(name = "Authorization") String token, @PathVariable Long paymentNum) {
+		if(!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		User user = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		Payment payment = paymentRepository.findById(paymentNum).orElseThrow(() -> new RuntimeException("Error: Payment not found"));
+		
+		if (payment.getStatus() == EPaymentStatus.REFUNDABLE) {
+			if (payment.getShowtime().getShowtime().compareTo(new Date()) <= 0) {
+				payment.setStatus(EPaymentStatus.FINAL);
+				paymentRepository.save(payment);
+				return new ResponseEntity<String>("Not refundable: Showtime has passed", HttpStatus.FORBIDDEN);
+			}
+			
+			payment.setStatus(EPaymentStatus.REQUESTED);
+			paymentRepository.save(payment);
+			return new ResponseEntity<String>("Refund requested", HttpStatus.OK);
+		} else {
+			return new ResponseEntity<String>("Not refundable", HttpStatus.FORBIDDEN);
+		}
+	}
+	
 	@PostMapping("post_review")
 	public ResponseEntity<?> postReview(@RequestHeader(name = "Authorization") String token, @RequestBody SimpleReview request) {
 		if(!jwtUtils.validateToken(token))
@@ -142,6 +168,7 @@ public class CustomerController {
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
 		
 		User user = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
 		
 		try {
 			UserProfile profile = profileRepository.findById(user.getUserId()).orElseThrow(() -> new RuntimeException("Profile not found"));
@@ -154,10 +181,26 @@ public class CustomerController {
 				profile.setEmail(request.getEmail());
 			if (request.getMobileNumber() != null)
 				profile.setMobileNumber(request.getMobileNumber());
+			if (request.getBirthday() != null) {
+				try {
+					profile.setBirthday(format.parse(request.getBirthday()));
+				} catch (ParseException e) {
+					profile.setBirthday(null);
+				}
+			}
+			if (request.getGenres() != null)
+				profile.setGenres(request.getGenres());
 			
 			profileRepository.save(profile);
 		} catch (RuntimeException e) {
-			UserProfile profile = new UserProfile(user.getUserId(), request.getFirstName(), request.getLastName(), request.getEmail(), request.getMobileNumber());
+			UserProfile profile;
+			try {
+				profile = new UserProfile(user.getUserId(), request.getFirstName(), request.getLastName(), request.getEmail(), request.getMobileNumber(), request.getBirthday() == null ? null : format.parse(request.getBirthday()));
+				profile.setGenres(request.getGenres());
+			} catch (ParseException pe) {
+				profile = new UserProfile(user.getUserId(), request.getFirstName(), request.getLastName(), request.getEmail(), request.getMobileNumber(), null);
+				profile.setGenres(request.getGenres());
+			}
 			profileRepository.save(profile);
 		}
 		
@@ -189,6 +232,15 @@ public class CustomerController {
 		
 		List<Payment> payments = paymentRepository.findByUser(user);
 		List<CustomerTransaction> transactions = new ArrayList<CustomerTransaction>();
+		
+		for (int i = 0; i < payments.size(); i++) {
+			Payment payment = payments.get(i);
+			if (payment.getStatus() != EPaymentStatus.REFUNDED && payment.getShowtime().getShowtime().compareTo(new Date()) <= 0) {
+				payment.setStatus(EPaymentStatus.FINAL);
+				paymentRepository.save(payment);
+				payments.set(i, payment);
+			}
+		}
 		
 		payments.forEach(payment -> {
 			double total[] = {0.0};
@@ -267,7 +319,7 @@ public class CustomerController {
 			UserProfile profile = profileRepository.findById(user.getUserId()).orElseThrow(() -> new RuntimeException("Profile not found"));
 			return new ResponseEntity<UserProfile>(profile, HttpStatus.OK);
 		} catch (RuntimeException e) {
-			UserProfile profile = new UserProfile(user.getUserId(), null, null, null, null);
+			UserProfile profile = new UserProfile(user.getUserId(), null, null, null, null, null);
 			return new ResponseEntity<UserProfile>(profile, HttpStatus.OK);
 		}
 	}

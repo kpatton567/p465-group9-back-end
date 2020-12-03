@@ -2,13 +2,15 @@ package com.group9.prevue.model.request;
 
 import java.util.Set;
 
+import com.group9.prevue.model.EGenre;
+
 public class AddMovieRequest {
 
 	private String title;
 	private String description;
 	private String posterLink;
 	
-	private Set<String> genre;
+	private Set<EGenre> genre;
 	
 	public AddMovieRequest () { }
 	
@@ -34,11 +36,11 @@ public class AddMovieRequest {
 		this.description = description;
 	}
 
-	public Set<String> getGenre() {
+	public Set<EGenre> getGenre() {
 		return genre;
 	}
 
-	public void setGenre(Set<String> genre) {
+	public void setGenre(Set<EGenre> genre) {
 		this.genre = genre;
 	}
 

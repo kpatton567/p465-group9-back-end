@@ -16,11 +16,8 @@ public class Movie {
 	private String description;
 	private String posterLink;
 	
-	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(name = "movie_genres",
-				joinColumns = @JoinColumn(name = "movie_id"),
-				inverseJoinColumns = @JoinColumn(name = "genre_id"))
-	private Set<Genre> genres = new HashSet<>();
+	@ElementCollection
+	private Set<EGenre> genres = new HashSet<>();
 	
 	public Movie() { }
 	
@@ -54,11 +51,11 @@ public class Movie {
 		this.description = description;
 	}
 
-	public Set<Genre> getGenres() {
+	public Set<EGenre> getGenres() {
 		return genres;
 	}
 
-	public void setGenres(Set<Genre> genres) {
+	public void setGenres(Set<EGenre> genres) {
 		this.genres = genres;
 	}
 
@@ -68,5 +65,9 @@ public class Movie {
 
 	public void setPosterLink(String posterLink) {
 		this.posterLink = posterLink;
+	}
+	
+	public int compareTo(Movie otherMovie) {
+		return title.compareToIgnoreCase(otherMovie.title);
 	}
 }
