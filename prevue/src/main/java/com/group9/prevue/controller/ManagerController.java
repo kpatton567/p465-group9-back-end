@@ -129,7 +129,7 @@ public class ManagerController {
 		return ResponseEntity.ok(new MessageResponse("Snack added successfully"));
 	}
 	
-	@PostMapping("refund_response/")
+	@PostMapping("/refund_response")
 	public ResponseEntity<?> respondToRefundRequest(@RequestHeader(name = "Authorization") String token, @RequestParam Long paymentNum, @RequestParam Boolean accepted) {
 		if (!jwtUtils.validateToken(token))
 			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);

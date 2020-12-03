@@ -3,6 +3,8 @@ package com.group9.prevue.model.response;
 import java.util.Date;
 import java.util.List;
 
+import com.group9.prevue.model.EPaymentStatus;
+
 public class CustomerTransaction {
 
 	private Long paymentId;
@@ -14,8 +16,9 @@ public class CustomerTransaction {
 	private String last4Digits;
 	private List<String> snacks;
 	private Double total;
+	private EPaymentStatus status;
 	
-	public CustomerTransaction(Long paymentId, String date, Long movieId, String movieName, Long theaterId, String theaterName, String last4Digits, List<String> snacks, Double total) {
+	public CustomerTransaction(Long paymentId, String date, Long movieId, String movieName, Long theaterId, String theaterName, String last4Digits, List<String> snacks, Double total, EPaymentStatus status) {
 		this.paymentId = paymentId;
 		this.date = date;
 		this.movieId = movieId;
@@ -25,6 +28,7 @@ public class CustomerTransaction {
 		this.last4Digits = last4Digits;
 		this.snacks = snacks;
 		this.total = total;
+		this.status = status;
 	}
 	
 	public Long getPaymentId() {
@@ -86,6 +90,14 @@ public class CustomerTransaction {
 
 	public void setTheaterId(Long theaterId) {
 		this.theaterId = theaterId;
+	}
+
+	public EPaymentStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(EPaymentStatus status) {
+		this.status = status;
 	}
 	
 }

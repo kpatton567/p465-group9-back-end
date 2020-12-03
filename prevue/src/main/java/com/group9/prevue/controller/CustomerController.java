@@ -133,6 +133,9 @@ public class CustomerController {
 		User user = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
 		Payment payment = paymentRepository.findById(paymentNum).orElseThrow(() -> new RuntimeException("Error: Payment not found"));
 		
+		if (!(payment.getUser().getUserId().equals(user.getUserId())))
+			return new ResponseEntity<String>("User does not match payment", HttpStatus.FORBIDDEN);
+		
 		if (payment.getStatus() == EPaymentStatus.REFUNDABLE) {
 			if (payment.getShowtime().getShowtime().compareTo(new Date()) <= 0) {
 				payment.setStatus(EPaymentStatus.FINAL);
@@ -254,7 +257,7 @@ public class CustomerController {
 			if (payment.getCoupon() != null)
 				total[0] *= (100 - payment.getCoupon().getPercentOff()) / 100.0;
 			
-			CustomerTransaction transaction = new CustomerTransaction(payment.getId(), ShowtimeInfo.dateString(payment.getPaymentDate()), payment.getMovie().getId(), payment.getMovie().getTitle(), payment.getTheater().getId(), payment.getTheater().getName(), payment.getPaymentInfo().getNumber().substring(12), snacks, total[0]);
+			CustomerTransaction transaction = new CustomerTransaction(payment.getId(), ShowtimeInfo.dateString(payment.getPaymentDate()), payment.getMovie().getId(), payment.getMovie().getTitle(), payment.getTheater().getId(), payment.getTheater().getName(), payment.getPaymentInfo().getNumber().substring(12), snacks, total[0], payment.getStatus());
 			transactions.add(transaction);
 		});
 		
