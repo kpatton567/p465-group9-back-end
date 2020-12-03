@@ -16,6 +16,7 @@ public class UserProfile {
 	private String email;
 	private String mobileNumber;
 	private Date birthday;
+	@ElementCollection
 	private Set<EGenre> genres;
 	
 	public UserProfile() {}
