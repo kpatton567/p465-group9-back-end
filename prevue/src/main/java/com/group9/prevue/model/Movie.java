@@ -6,7 +6,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "movies", uniqueConstraints = {@UniqueConstraint(columnNames = "title")})
-public class Movie {
+public class Movie implements Comparable<Movie>{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

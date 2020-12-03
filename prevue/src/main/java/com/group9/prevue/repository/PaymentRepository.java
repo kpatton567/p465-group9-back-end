@@ -1,5 +1,6 @@
 package com.group9.prevue.repository;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,4 +18,5 @@ public interface PaymentRepository extends JpaRepository<Payment, Long>{
 	List<Payment> findByTheater(Theater theaterId);
 	List<Payment> findByTheaterAndStatus(Theater theaterId, EPaymentStatus status);
 	List<Payment> findByTheaterAndStatusNot(Theater theaterId, EPaymentStatus status);
+	List<Payment> findByTheaterAndStatusNotAndPaymentDateGreaterThan(Theater theaterId, EPaymentStatus status, Date date);
 }

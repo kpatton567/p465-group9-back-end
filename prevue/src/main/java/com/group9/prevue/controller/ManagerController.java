@@ -1,11 +1,15 @@
 package com.group9.prevue.controller;
 
 import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
-import java.text.DecimalFormat;
+import java.util.Map;
+import java.util.TreeMap;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -52,8 +56,6 @@ public class ManagerController {
 	
 	@Autowired
 	private JwtUtils jwtUtils;
-	
-	private DecimalFormat moneyFormat = new DecimalFormat("0.00");
 	
 	@PostMapping("/add_showtime")
 	public ResponseEntity<?> addShowtime(@RequestHeader(name = "Authorization") String token, @RequestBody AddShowtimeRequest request){
@@ -164,7 +166,7 @@ public class ManagerController {
 			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
 		
 		Theater theater = theaterRepository.findByManager(manager).orElseThrow(() -> new RuntimeException("Error: No theater with this manager"));
-		List<Payment> payments = paymentRepository.findByTheater(theater);
+		List<Payment> payments = paymentRepository.findByTheaterAndStatusNot(theater, EPaymentStatus.REFUNDED);
 		List<TheaterTransaction> transactions = new ArrayList<TheaterTransaction>();
 		
 		payments.forEach(payment -> {
@@ -176,6 +178,11 @@ public class ManagerController {
 			total[0] += payment.getShowtime().getPrice() * payment.getTicketCount();
 			if (payment.getCoupon() != null)
 				total[0] *= (100 - payment.getCoupon().getPercentOff()) / 100.0;
+			
+			BigDecimal bd = new BigDecimal(Double.toString(total[0]));
+			bd.setScale(2, RoundingMode.HALF_UP);
+			total[0] = bd.doubleValue();
+			
 			TheaterTransaction transaction = new TheaterTransaction(payment.getId(), payment.getTheater().getId(), total[0], ShowtimeInfo.dateString(payment.getPaymentDate()));
 			transactions.add(transaction);
 		});
@@ -212,12 +219,178 @@ public class ManagerController {
 				total[0] += payment.getShowtime().getPrice() * payment.getTicketCount();
 				if (payment.getCoupon() != null)
 					total[0] *= (100 - payment.getCoupon().getPercentOff()) / 100.0;
-				TheaterTransaction transaction = new TheaterTransaction(payment.getId(), payment.getTheater().getId(), new Double(Long.parseLong(moneyFormat.format(total[0]))), ShowtimeInfo.dateString(payment.getPaymentDate()));
+				
+				BigDecimal bd = new BigDecimal(Double.toString(total[0]));
+				bd.setScale(2, RoundingMode.HALF_UP);
+				total[0] = bd.doubleValue();
+				
+				TheaterTransaction transaction = new TheaterTransaction(payment.getId(), payment.getTheater().getId(), total[0], ShowtimeInfo.dateString(payment.getPaymentDate()));
 				transactions.add(transaction);
 				i++;
 			}
 		}
 		
 		return new ResponseEntity<List<TheaterTransaction>>(transactions, HttpStatus.OK);
+	}
+	
+	@GetMapping("theater_revenue")
+	public ResponseEntity<?> getTheaterRevenue(@RequestHeader(name = "Authorization") String token) {
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		if (manager.getRole() != ERole.ROLE_MANAGER)
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
+		
+		Theater theater = theaterRepository.findByManager(manager).orElseThrow(() -> new RuntimeException("Manager does not have a theater"));
+		
+		Calendar c = Calendar.getInstance();
+		c.add(Calendar.MONTH, -6);
+		c.set(Calendar.HOUR_OF_DAY, 0);
+		c.set(Calendar.MINUTE, 0);
+		c.set(Calendar.SECOND, 0);
+		c.set(Calendar.MILLISECOND, 0);
+		Date minDate = c.getTime();
+		List<Payment> payments = paymentRepository.findByTheaterAndStatusNotAndPaymentDateGreaterThan(theater, EPaymentStatus.REFUNDED, minDate);
+		Map<Integer, Double> monthlyTotals = new TreeMap<>();
+		
+		payments.forEach(payment -> {
+			Calendar paymentCal = Calendar.getInstance();
+			paymentCal.setTime(payment.getPaymentDate());
+			int paymentMonth = paymentCal.get(Calendar.MONTH) + 1;
+			double[] total = {0.0};
+			payment.getSnacks().forEach(snack -> {
+				total[0] += snack.getSnack().getPrice() * snack.getQuantity();
+			});
+			total[0] += payment.getShowtime().getPrice() * payment.getTicketCount();
+			if (payment.getCoupon() != null) 
+				total[0] *= (100 - payment.getCoupon().getPercentOff()) / 100.0;
+			
+			BigDecimal bd = new BigDecimal(Double.toString(total[0]));
+			bd.setScale(2, RoundingMode.HALF_UP);
+			total[0] = bd.doubleValue();
+			
+			if (monthlyTotals.containsKey(paymentMonth)) {
+				monthlyTotals.put(paymentMonth, monthlyTotals.get(paymentMonth) + total[0]);
+			} else {
+				monthlyTotals.put(paymentMonth, total[0]);
+			}
+		});
+		
+		return new ResponseEntity<Map<Integer, Double>>(monthlyTotals, HttpStatus.OK);
+	}
+	
+	@GetMapping("coupon_savings")
+	public ResponseEntity<?> getCouponSavings(@RequestHeader(name = "Authorization") String token) {
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		if (manager.getRole() != ERole.ROLE_MANAGER)
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
+		
+		Theater theater = theaterRepository.findByManager(manager).orElseThrow(() -> new RuntimeException("Manager does not have a theater"));
+		
+		Calendar c = Calendar.getInstance();
+		c.add(Calendar.MONTH, -6);
+		c.set(Calendar.HOUR_OF_DAY, 0);
+		c.set(Calendar.MINUTE, 0);
+		c.set(Calendar.SECOND, 0);
+		c.set(Calendar.MILLISECOND, 0);
+		Date minDate = c.getTime();
+		List<Payment> payments = paymentRepository.findByTheaterAndStatusNotAndPaymentDateGreaterThan(theater, EPaymentStatus.REFUNDED, minDate);
+		Map<Integer, Double> monthlyTotals = new TreeMap<>();
+		
+		payments.forEach(payment -> {
+			if (payment.getCoupon() != null) {
+				Calendar paymentCal = Calendar.getInstance();
+				paymentCal.setTime(payment.getPaymentDate());
+				int paymentMonth = paymentCal.get(Calendar.MONTH) + 1;
+				double[] total = {0.0};
+				payment.getSnacks().forEach(snack -> {
+					total[0] += snack.getSnack().getPrice() * snack.getQuantity();
+				});
+				total[0] += payment.getShowtime().getPrice() * payment.getTicketCount();
+				
+				double couponSavings = total[0] * (payment.getCoupon().getPercentOff() / 100.0);
+				BigDecimal bd = new BigDecimal(Double.toString(couponSavings));
+				bd.setScale(2, RoundingMode.HALF_UP);
+				
+				if (monthlyTotals.containsKey(paymentMonth)) {
+					monthlyTotals.put(paymentMonth, monthlyTotals.get(paymentMonth) + bd.doubleValue());
+				}
+			}
+		});
+		
+		return new ResponseEntity<Map<Integer, Double>>(monthlyTotals, HttpStatus.OK);
+	}
+	
+	@GetMapping("movies_seen")
+	public ResponseEntity<?> getMoviesSeen(@RequestHeader(name = "Authorization") String token) {
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		if (manager.getRole() != ERole.ROLE_MANAGER)
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
+		
+		Theater theater = theaterRepository.findByManager(manager).orElseThrow(() -> new RuntimeException("Manager does not have a theater"));
+		
+		Calendar c = Calendar.getInstance();
+		c.add(Calendar.MONTH, -6);
+		c.set(Calendar.HOUR_OF_DAY, 0);
+		c.set(Calendar.MINUTE, 0);
+		c.set(Calendar.SECOND, 0);
+		c.set(Calendar.MILLISECOND, 0);
+		Date minDate = c.getTime();
+		List<Payment> payments = paymentRepository.findByTheaterAndStatusNotAndPaymentDateGreaterThan(theater, EPaymentStatus.REFUNDED, minDate);
+		Map<Integer, Integer> monthlyTotals = new TreeMap<>();
+		
+		payments.forEach(payment -> {
+			Calendar paymentCal = Calendar.getInstance();
+			paymentCal.setTime(payment.getPaymentDate());
+			int paymentMonth = paymentCal.get(Calendar.MONTH) + 1;
+			
+			if (monthlyTotals.containsKey(paymentMonth))
+				monthlyTotals.put(paymentMonth, monthlyTotals.get(paymentMonth) + payment.getTicketCount());
+			else
+				monthlyTotals.put(paymentMonth, payment.getTicketCount());
+		});
+		
+		return new ResponseEntity<Map<Integer, Integer>>(monthlyTotals, HttpStatus.OK);
+	}
+	
+	@GetMapping("movie_revenue")
+	public ResponseEntity<?> getMovieRevenue(@RequestHeader(name = "Authorization") String token) {
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		User manager = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		if (manager.getRole() != ERole.ROLE_MANAGER)
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
+		
+		Theater theater = theaterRepository.findByManager(manager).orElseThrow(() -> new RuntimeException("Manager does not have a theater"));
+		
+		Calendar c = Calendar.getInstance();
+		c.add(Calendar.MONTH, -6);
+		c.set(Calendar.HOUR_OF_DAY, 0);
+		c.set(Calendar.MINUTE, 0);
+		c.set(Calendar.SECOND, 0);
+		c.set(Calendar.MILLISECOND, 0);
+		Date minDate = c.getTime();
+		List<Payment> payments = paymentRepository.findByTheaterAndStatusNotAndPaymentDateGreaterThan(theater, EPaymentStatus.REFUNDED, minDate);
+		Map<String, Double> movieTotals = new TreeMap<>();
+		
+		payments.forEach(payment -> {
+			Movie movie = payment.getMovie();
+			
+			if (movieTotals.containsKey(movie)) {
+				movieTotals.put(movie.getTitle(), movieTotals.get(movie.getTitle()) + (payment.getShowtime().getPrice() * payment.getTicketCount()));
+			} else {
+				movieTotals.put(movie.getTitle(), payment.getShowtime().getPrice() * payment.getTicketCount());
+			}
+		});
+		
+		return new ResponseEntity<Map<String, Double>>(movieTotals, HttpStatus.OK);
 	}
 }

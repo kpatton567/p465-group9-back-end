@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -256,6 +259,10 @@ public class CustomerController {
 			total[0] += payment.getShowtime().getPrice() * payment.getTicketCount();
 			if (payment.getCoupon() != null)
 				total[0] *= (100 - payment.getCoupon().getPercentOff()) / 100.0;
+			
+			BigDecimal bd = new BigDecimal(Double.toString(total[0]));
+			bd.setScale(2, RoundingMode.HALF_UP);
+			total[0] = bd.doubleValue();
 			
 			CustomerTransaction transaction = new CustomerTransaction(payment.getId(), ShowtimeInfo.dateString(payment.getPaymentDate()), payment.getMovie().getId(), payment.getMovie().getTitle(), payment.getTheater().getId(), payment.getTheater().getName(), payment.getPaymentInfo().getNumber().substring(12), snacks, total[0], payment.getStatus());
 			transactions.add(transaction);
