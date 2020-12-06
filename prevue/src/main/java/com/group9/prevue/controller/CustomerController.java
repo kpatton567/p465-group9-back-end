@@ -82,7 +82,7 @@ public class CustomerController {
 		
 		Payment payment = new Payment();
 		payment.setTheater(theaterRepository.findById(request.getTheaterId()).orElseThrow(() -> new RuntimeException("Error: Theater not found")));
-		payment.setMovie(movieRepository.findById(request.getTheaterId()).orElseThrow(() -> new RuntimeException("Error: Movie not found")));
+		payment.setMovie(movieRepository.findById(request.getMovieId()).orElseThrow(() -> new RuntimeException("Error: Movie not found")));
 		payment.setUser(user);
 		payment.setPaymentDate(new Date());
 		payment.setShowtime(showtime);
