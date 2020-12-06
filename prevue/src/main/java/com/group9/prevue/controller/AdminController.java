@@ -117,6 +117,38 @@ public class AdminController {
 		return new ResponseEntity<String>("Theater deleted successfully", HttpStatus.OK);
 	}
 	
+	@PostMapping("delete_showtime/{showtimeId}")
+	public ResponseEntity<?> deleteShowtime(@RequestHeader(name = "Authorization") String token, @PathVariable Long showtimeId) {
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		User admin = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		if (admin.getRole() != ERole.ROLE_ADMIN)
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
+		
+		Showtime showtime = showtimeRepository.findById(showtimeId).orElseThrow(() -> new RuntimeException("Error: Showtime not found"));
+		
+		showtimeRepository.delete(showtime);
+		
+		return new ResponseEntity<String>("Showtime deleted successfully", HttpStatus.OK);
+	}
+	
+	@PostMapping("delete_snack/{snackId}")
+	public ResponseEntity<?> deleteSnack(@RequestHeader(name = "Authorization") String token, @PathVariable Long snackId) {
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		User admin = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		if (admin.getRole() != ERole.ROLE_ADMIN)
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
+		
+		Snack snack = snackRepository.findById(snackId).orElseThrow(() -> new RuntimeException("Error: Snack not found"));
+		
+		snackRepository.delete(snack);
+		
+		return new ResponseEntity<String>("Snack deleted successfully", HttpStatus.OK);
+	}
+	
 	@PostMapping("delete_user/{userId}")
 	public ResponseEntity<?> deleteUser(@RequestHeader(name = "Authorization") String token, @PathVariable String userId) {
 		if (!jwtUtils.validateToken(token))
