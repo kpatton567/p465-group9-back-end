@@ -26,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 
 import com.group9.prevue.model.*;
 import com.group9.prevue.model.request.SearchFilter;
+import com.group9.prevue.model.request.SearchQuery;
 import com.group9.prevue.model.response.MovieShowtime;
 import com.group9.prevue.model.response.SnackResponse;
 import com.group9.prevue.model.response.StarRatingResponse;
@@ -199,8 +200,8 @@ public class HomeController {
 	}
 	
 	@PostMapping("movie_search")
-	public List<Movie> movieSearch(@RequestParam String text) {
-		List<Movie> movies = movieRepository.findByTitleContainingIgnoreCase(text);
+	public List<Movie> movieSearch(@RequestBody SearchQuery term) {
+		List<Movie> movies = movieRepository.findByTitleContainingIgnoreCase(term.getTerm());
 		Collections.sort(movies, new MovieTitleComparator());
 		return movies;
 	}
