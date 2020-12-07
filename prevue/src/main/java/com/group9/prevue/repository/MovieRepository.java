@@ -10,4 +10,5 @@ import com.group9.prevue.model.Movie;
 @Repository
 public interface MovieRepository extends JpaRepository<Movie, Long>{
 
+	List<Movie> findByTitleContainingIgnoreCase(String text);
 }

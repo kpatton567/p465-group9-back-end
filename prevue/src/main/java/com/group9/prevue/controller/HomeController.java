@@ -198,6 +198,13 @@ public class HomeController {
 		return new ResponseEntity<Set<Movie>>(movieResults, HttpStatus.OK);
 	}
 	
+	@PostMapping("movie_search")
+	public List<Movie> movieSearch(@RequestParam String text) {
+		List<Movie> movies = movieRepository.findByTitleContainingIgnoreCase(text);
+		Collections.sort(movies, new MovieTitleComparator());
+		return movies;
+	}
+	
 	@GetMapping("/theaters")
 	public List<Theater> getAllTheaters(){
 		List<Theater> theaters = theaterRepository.findAll();
