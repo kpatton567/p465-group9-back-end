@@ -315,4 +315,16 @@ public class AdminController {
 		
 		return new ResponseEntity<List<Snack>>(snackRepository.findAll(), HttpStatus.OK);
 	}
+	
+	@GetMapping("all_users")
+	public ResponseEntity<?> allUsers(@RequestHeader(name = "Authorization") String token) {
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		User admin = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		if (admin.getRole() != ERole.ROLE_ADMIN)
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
+		
+		return new ResponseEntity<List<User>>(userRepository.findAll(), HttpStatus.OK);
+	}
 }
