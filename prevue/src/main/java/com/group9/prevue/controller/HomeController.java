@@ -273,8 +273,8 @@ public class HomeController {
 	}
 	
 	@GetMapping("theater_address/{theaterId}")
-	public TheaterLocation getTheaterAddress(@PathVariable Long theaterId) {
+	public String getTheaterAddress(@PathVariable Long theaterId) {
 		Theater theater = theaterRepository.findById(theaterId).orElseThrow(() -> new RuntimeException("Error: Theater not found"));
-		return new TheaterLocation(theater.getAddress(), theater.getLatitude(), theater.getLongitude());
+		return theater.getAddress();
 	}
 }
