@@ -166,6 +166,22 @@ public class AdminController {
 		return new ResponseEntity<String>("User deleted successfully", HttpStatus.OK);
 	}
 	
+	@PostMapping("delete_payment/{paymentId}")
+	public ResponseEntity<?> deletePayment(@RequestHeader(name = "Authorization") String token, @PathVariable Long paymentId) {
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		User admin = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		if (admin.getRole() != ERole.ROLE_ADMIN)
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
+		
+		Payment payment = paymentRepository.findById(paymentId).orElseThrow(() -> new RuntimeException("Error: Payment not found"));
+		
+		paymentRepository.delete(payment);
+		
+		return new ResponseEntity<String>("Payment deleted successfully", HttpStatus.OK);
+	}
+	
 	@PostMapping("add_payment")
 	public ResponseEntity<?> addPayment(@RequestHeader(name = "Authorization") String token, @RequestBody AdminPaymentRequest request) {
 		if (!jwtUtils.validateToken(token))
@@ -227,7 +243,14 @@ public class AdminController {
 	}
 	
 	@GetMapping("all_payments")
-	public List<Payment> allPayments(@RequestHeader(name = "Authorization") String token) {
-		return paymentRepository.findAll();
+	public ResponseEntity<?> allPayments(@RequestHeader(name = "Authorization") String token) {
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		User admin = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		if (admin.getRole() != ERole.ROLE_ADMIN)
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
+		
+		return new ResponseEntity<List<Payment>>(paymentRepository.findAll(), HttpStatus.OK);
 	}
 }
