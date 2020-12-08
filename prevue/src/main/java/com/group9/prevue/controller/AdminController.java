@@ -53,6 +53,12 @@ public class AdminController {
 	private SnackRepository snackRepository;
 	
 	@Autowired
+	private ReviewRepository reviewRepository;
+	
+	@Autowired
+	private ProfileRepository profileRepository;
+	
+	@Autowired
 	private JwtUtils jwtUtils;
 	
 	@PostMapping("add_theater")
@@ -182,6 +188,38 @@ public class AdminController {
 		return new ResponseEntity<String>("Payment deleted successfully", HttpStatus.OK);
 	}
 	
+	@PostMapping("delete_review/{reviewId}")
+	public ResponseEntity<?> deleteReview(@RequestHeader(name = "Authorization") String token, @PathVariable Long reviewId) {
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		User admin = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		if (admin.getRole() != ERole.ROLE_ADMIN)
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
+		
+		Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new RuntimeException("Error: Review not found"));
+		
+		reviewRepository.delete(review);
+		
+		return new ResponseEntity<String>("Review deleted successfully", HttpStatus.OK);
+	}
+	
+	@PostMapping("delete_profile/{userId}")
+	public ResponseEntity<?> deleteProfile(@RequestHeader(name = "Authorization") String token, @PathVariable String userId) {
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		User admin = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		if (admin.getRole() != ERole.ROLE_ADMIN)
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
+		
+		UserProfile profile = profileRepository.findById(userId).orElseThrow(() -> new RuntimeException("Error: Profile not found"));
+		
+		profileRepository.delete(profile);
+		
+		return new ResponseEntity<String>("Profile deleted successfully", HttpStatus.OK);
+	}
+	
 	@PostMapping("add_payment")
 	public ResponseEntity<?> addPayment(@RequestHeader(name = "Authorization") String token, @RequestBody AdminPaymentRequest request) {
 		if (!jwtUtils.validateToken(token))
@@ -252,5 +290,29 @@ public class AdminController {
 			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
 		
 		return new ResponseEntity<List<Payment>>(paymentRepository.findAll(), HttpStatus.OK);
+	}
+	
+	@GetMapping("all_reviews")
+	public ResponseEntity<?> allReviews(@RequestHeader(name = "Authorization") String token) {
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		User admin = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		if (admin.getRole() != ERole.ROLE_ADMIN)
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
+		
+		return new ResponseEntity<List<Review>>(reviewRepository.findAll(), HttpStatus.OK);
+	}
+	
+	@GetMapping("all_snacks")
+	public ResponseEntity<?> allSnacks(@RequestHeader(name = "Authorization") String token) {
+		if (!jwtUtils.validateToken(token))
+			return new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED);
+		
+		User admin = userRepository.findById(jwtUtils.getUserFromToken(token.substring(7))).orElseThrow(() -> new RuntimeException("Error: User not found"));
+		if (admin.getRole() != ERole.ROLE_ADMIN)
+			return new ResponseEntity<String>("Forbidden", HttpStatus.FORBIDDEN);
+		
+		return new ResponseEntity<List<Snack>>(snackRepository.findAll(), HttpStatus.OK);
 	}
 }
